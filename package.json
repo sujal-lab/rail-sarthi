@@ -1,11 +1,10 @@
 {
   "name": "rail-sarthi",
   "version": "1.0.0",
-  "description": "RailSarthi is a queue-centric railway reservation backend built to simulate high-load booking scenarios with seat locking, concurrency control, waiting list automation, and Tatkal priority handling — designed to prevent race conditions and double booking under heavy traffic.",
-  "main": "app.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
