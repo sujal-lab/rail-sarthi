@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");   // ✅ ADD THIS
 
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -7,6 +8,9 @@ const trainRoutes = require("./routes/trainRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 
 const app = express();
+
+// ✅ Enable CORS (VERY IMPORTANT)
+app.use(cors());
 
 // Parse JSON bodies
 app.use(express.json());
@@ -19,8 +23,9 @@ app.use("/trains", trainRoutes);
 app.use("/bookings", bookingRoutes);
 
 // Serve static files
-app.use(express.static("public"));   //add it when index.html will be done 
+app.use(express.static("public"));
 
+// 404 handler
 app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });
 });

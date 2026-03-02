@@ -4,7 +4,7 @@ tailwind.config = { theme: { extend: {
             boxShadow: { glass: '0 8px 32px 0 rgba(31,38,135,0.07)', float: '0 20px 40px -10px rgba(0,0,0,0.1)', card: '0 4px 20px -2px rgba(0,0,0,0.05)' }
         }}}
 
-const API_BASE = ''; const $ = id => document.getElementById(id); // Tiny Helpers
+const API_BASE =  'http://localhost:3001'; const $ = id => document.getElementById(id); // Tiny Helpers
         
         // Dynamic Data Rendering (Saves massive HTML lines)
         const uiData = {
@@ -40,32 +40,82 @@ const API_BASE = ''; const $ = id => document.getElementById(id); // Tiny Helper
             const t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<i class="ph-bold ${type==='success'?'ph-check-circle':'ph-warning-circle'} text-2xl"></i><span>${msg}</span>`;
             $('toast-container').appendChild(t); setTimeout(() => { t.classList.add('fade-out'); setTimeout(() => t.remove(), 300); }, 3000);
         };
-        const switchTab = id => {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-ryblue-600','text-slate-500')||b.classList.remove('font-bold'));
-            $(id).classList.add('active'); const btn = document.querySelector(`[data-tab="${id}"]`); btn && (btn.classList.add('text-ryblue-600','font-bold'), btn.classList.remove('text-slate-500'));
-            id === 'bookings' ? fetchBookings() : fetchTrains();
-        };
+       const switchTab = id => {
+
+    // remove active from all
+    document.querySelectorAll('.tab-content')
+        .forEach(t => t.classList.remove('active'));
+
+    document.querySelectorAll('.nav-btn')
+        .forEach(b => {
+            b.classList.remove('text-ryblue-600','font-bold');
+            b.classList.add('text-slate-500');
+        });
+
+    // activate selected tab
+    const selectedTab = document.getElementById(id);
+    if (!selectedTab) return;
+
+    selectedTab.classList.add('active');
+
+    const btn = document.querySelector(`[data-tab="${id}"]`);
+    if (btn) {
+        btn.classList.remove('text-slate-500');
+        btn.classList.add('text-ryblue-600','font-bold');
+    }
+
+    // Only fetch when needed
+    if (id === 'bookings') fetchBookings();
+    if (id === 'admin') fetchTrains();
+};
 
         // API Wrapper
         const apiCall = async (url, method='GET', body=null) => {
-            try { const r = await fetch(API_BASE+url, { method, headers: body?{'Content-Type':'application/json'}:{}, body: body?JSON.stringify(body):null });
-            return r.ok||r.status===404 ? (method==='GET'?await r.json():true) : false; } catch { return null; }
-        };
+    try {
+        const r = await fetch(API_BASE + url, {
+            method,
+            headers: body ? {'Content-Type':'application/json'} : {},
+            body: body ? JSON.stringify(body) : null
+        });
+
+        if (!r.ok) {
+            console.error("API Error:", r.status);
+            return false;
+        }
+
+        return method === 'GET' ? await r.json() : true;
+
+    } catch (err) {
+        console.error("Fetch Failed:", err);
+        return false;
+    }
+};
 
         // Train Logic
         const fetchTrains = async () => renderTrains(await apiCall('/trains') || uiData.mock.trains);
         const renderTrains = t => {
-            $('trainSelect').innerHTML = '<option value="">Select a train...</option>' + t.map(x => `<option value="${x.id}">${x.trainNo} - ${x.name}</option>`).join('');
-            $('adminTrainsTableBody').innerHTML = t.length ? t.map(x => `<tr class="hover:bg-slate-50/50"><td class="p-6"><div class="font-heading font-bold text-lg">${x.name}</div><div class="text-xs text-slate-400 font-bold uppercase mt-1">No: <span class="text-ryblue-600">${x.trainNo}</span></div></td><td class="p-6"><div class="font-bold text-sm bg-white border px-3 py-1.5 rounded-lg inline-flex">${x.source} &rarr; ${x.destination}</div></td><td class="p-6 font-bold text-sm"><div class="mb-1"><i class="ph-fill ph-armchair mr-1"></i>${x.totalSeats} seats</div><div class="text-base text-emerald-600">₹${x.price}</div></td><td class="p-6 text-right"><button onclick="viewTrainDetails('${x.id}')" class="w-10 h-10 rounded-xl bg-ryblue-50 text-ryblue-600 mr-2"><i class="ph-bold ph-eye"></i></button><button onclick="deleteTrain('${x.id}')" class="w-10 h-10 rounded-xl bg-red-50 text-red-500"><i class="ph-bold ph-trash"></i></button></td></tr>`).join('') : `<tr><td colspan="4" class="p-16 text-center font-bold text-slate-400">No trains.</td></tr>`;
+            $('trainSelect').innerHTML = '<option value="">Select a train...</option>' + t.map(x => `<option value="${x.id}">${x.trainNo} - ${x.trainName}</option>`).join('');
+            $('adminTrainsTableBody').innerHTML = t.length ? t.map(x => `<tr class="hover:bg-slate-50/50"><td class="p-6"><div class="font-heading font-bold text-lg">${x.trainName}</div><div class="text-xs text-slate-400 font-bold uppercase mt-1">No: <span class="text-ryblue-600">${x.trainNo}</span></div></td><td class="p-6"><div class="font-bold text-sm bg-white border px-3 py-1.5 rounded-lg inline-flex">${x.source} &rarr; ${x.destination}</div></td><td class="p-6 font-bold text-sm"><div class="mb-1"><i class="ph-fill ph-armchair mr-1"></i>${x.totalSeats} seats</div><div class="text-base text-emerald-600">₹${x.price}</div></td><td class="p-6 text-right"><button onclick="viewTrainDetails('${x.id}')" class="w-10 h-10 rounded-xl bg-ryblue-50 text-ryblue-600 mr-2"><i class="ph-bold ph-eye"></i></button><button onclick="deleteTrain('${x.id}')" class="w-10 h-10 rounded-xl bg-red-50 text-red-500"><i class="ph-bold ph-trash"></i></button></td></tr>`).join('') : `<tr><td colspan="4" class="p-16 text-center font-bold text-slate-400">No trains.</td></tr>`;
         };
         const viewTrainDetails = async id => {
             const t = await apiCall(`/trains/${id}`) || uiData.mock.trains.find(x => x.id === id); if(!t) return;
-            $('modalContent').innerHTML = `<div class="space-y-4 font-medium"><div class="flex justify-between border-b pb-2"><span>ID</span><span class="font-mono bg-slate-100 px-2 rounded">${t.id}</span></div><div class="flex justify-between border-b pb-2"><span>Name</span><span class="font-bold">${t.name} (${t.trainNo})</span></div><div class="flex justify-between border-b pb-2"><span>Route</span><span class="text-ryblue-600 bg-ryblue-50 px-2 rounded">${t.source} &rarr; ${t.destination}</span></div><div class="flex justify-between pt-2"><span>Fare</span><span class="font-black text-emerald-600 text-2xl">₹${t.price}</span></div></div>`;
+            $('modalContent').innerHTML = `<div class="space-y-4 font-medium"><div class="flex justify-between border-b pb-2"><span>ID</span><span class="font-mono bg-slate-100 px-2 rounded">${t.id}</span></div><div class="flex justify-between border-b pb-2"><span>Name</span><span class="font-bold">${t.trainName} (${t.trainNo})</span></div><div class="flex justify-between border-b pb-2"><span>Route</span><span class="text-ryblue-600 bg-ryblue-50 px-2 rounded">${t.source} &rarr; ${t.destination}</span></div><div class="flex justify-between pt-2"><span>Fare</span><span class="font-black text-emerald-600 text-2xl">₹${t.price}</span></div></div>`;
             $('trainModal').classList.remove('hidden');
         };
         $('addTrainForm').onsubmit = async e => {
-            e.preventDefault(); const t = { id: Date.now().toString(), trainNo: $('trainNo').value, name: $('trainName').value, source: $('source').value, destination: $('destination').value, totalSeats: +$('totalSeats').value, price: +$('price').value };
-            if(await apiCall('/trains', 'POST', t) ?? (uiData.mock.trains.push(t), true)) { showToast("Train added!"); e.target.reset(); fetchTrains(); } else showToast("Failed to add", "error");
+            e.preventDefault();
+            e.stopPropagation();
+             const t = { id: Date.now().toString(), trainNo: $('trainNo').value, trainName: $('trainName').value, source: $('source').value, destination: $('destination').value, totalSeats: +$('totalSeats').value, price: +$('price').value };
+         const response = await apiCall('/trains', 'POST', t);
+
+if (response) {
+    showToast("Train added!");
+    e.target.reset();
+    fetchTrains();
+    switchTab('admin'); 
+} else {
+    showToast("Failed to add", "error");
+}
         };
         const deleteTrain = async id => confirm("Delete this train?") && (await apiCall(`/trains/${id}`, 'DELETE') ?? (uiData.mock.trains = uiData.mock.trains.filter(t=>t.id!==id), true)) ? (showToast("Deleted!"), fetchTrains()) : showToast("Failed", "error");
 

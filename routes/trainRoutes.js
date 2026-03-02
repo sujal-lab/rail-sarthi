@@ -7,76 +7,102 @@ const router = express.Router();
 // Path of trains.json file
 const filePath = path.join(__dirname, '../data/trains.json');
 
-module.exports = router;
+// Ensure file exists
+if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, JSON.stringify([], null, 2));
+}
 
-
-// Function to read trains from file
+// Function to read trains
 function readTrains() {
     const data = fs.readFileSync(filePath, "utf-8");
     return JSON.parse(data);
 }
 
-// Function to write trains to file
+// Function to write trains
 function writeTrains(data) {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-
 }
 
 
-
+// ============================
 // GET /trains
+// ============================
 router.get("/", (req, res) => {
     try {
         const trains = readTrains();
-        res.json(trains);
+        res.status(200).json(trains);
     } catch (error) {
+        console.error("Read Error:", error);
         res.status(500).json({ message: "Error reading trains file" });
     }
 });
 
 
+// ============================
 // GET /trains/:id
+// ============================
 router.get("/:id", (req, res) => {
     try {
         const trains = readTrains();
-
         const train = trains.find(t => t.id === req.params.id);
 
         if (!train) {
             return res.status(404).json({ message: "Train not found" });
         }
 
-        res.json(train);
+        res.status(200).json(train);
 
     } catch (error) {
+        console.error("Fetch Error:", error);
         res.status(500).json({ message: "Error fetching train" });
     }
 });
 
 
-
+// ============================
 // POST /trains
-router.post('/', (req, res) => {
+// ============================
+router.post("/", (req, res) => {
     try {
-        const { trainName, source, destination } = req.body;
+        let { trainNo, trainName, source, destination, totalSeats, price } = req.body;
 
-        // Basic validation
-        if (!trainName || !source || !destination) {
-            return res.status(400).json({ message: "All fields are required" });
+        // Trim string fields
+        trainNo = trainNo?.trim();
+        trainName = trainName?.trim();
+        source = source?.trim();
+        destination = destination?.trim();
+
+        totalSeats = Number(totalSeats);
+        price = Number(price);
+
+        // Proper validation
+        if (
+            !trainNo ||
+            !trainName ||
+            !source ||
+            !destination ||
+            isNaN(totalSeats) ||
+            isNaN(price)
+        ) {
+            return res.status(400).json({ message: "All fields are required and must be valid" });
         }
 
         const trains = readTrains();
 
-        // Generate sequential ID
-        const newId = trains.length > 0 
-            ? parseInt(trains[trains.length - 1].id) + 1 
-            : 1;
+        // Check duplicate trainNo
+        if (trains.some(t => t.trainNo === trainNo)) {
+            return res.status(400).json({ message: "Train number already exists" });
+        }
 
         const newTrain = {
-            id: newId.toString(),
+            id: Date.now().toString(),
+            trainNo,
             trainName,
             source,
-            destination
+            destination,
+            totalSeats,
+            availableSeats: totalSeats,
+            price
         };
 
         trains.push(newTrain);
@@ -85,12 +111,16 @@ router.post('/', (req, res) => {
         res.status(201).json(newTrain);
 
     } catch (error) {
+        console.error("Add Error:", error);
         res.status(500).json({ message: "Error adding train" });
     }
 });
 
+
+// ============================
 // DELETE /trains/:id
-router.delete('/:id', (req, res) => {
+// ============================
+router.delete("/:id", (req, res) => {
     try {
         const trains = readTrains();
         const updatedTrains = trains.filter(t => t.id !== req.params.id);
@@ -100,10 +130,12 @@ router.delete('/:id', (req, res) => {
         }
 
         writeTrains(updatedTrains);
-
-        res.json({ message: "Train deleted successfully" });
+        res.status(200).json({ message: "Train deleted successfully" });
 
     } catch (error) {
+        console.error("Delete Error:", error);
         res.status(500).json({ message: "Error deleting train" });
     }
 });
+
+module.exports = router;
