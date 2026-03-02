@@ -1,0 +1,13 @@
+html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; background-color: #f8fafc; background-image: radial-gradient(at 0% 0%, rgba(23,56,115,0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(214,52,71,0.05) 0px, transparent 50%); background-attachment: fixed; }
+        .tab-content { display: none; animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1); }
+        .tab-content.active { display: block; }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 50; display: flex; flex-direction: column; gap: 12px; }
+        .toast { padding: 16px 24px; border-radius: 16px; color: white; font-weight: 600; font-family: 'Outfit', sans-serif; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards; display: flex; align-items: center; gap: 10px; }
+        .toast.success { background: linear-gradient(135deg, #10b981, #059669); } .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .toast.fade-out { animation: fadeOut 0.3s forwards; }
+        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+        .app-promo-box { background: linear-gradient(105deg, #1b2a5a 0%, #3a1c3d 50%, #d63447 100%); }
+        .glass-nav { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
