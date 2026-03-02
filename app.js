@@ -19,7 +19,7 @@ app.use("/trains", trainRoutes);
 app.use("/bookings", bookingRoutes);
 
 // Serve static files
-app.use(express.static("public"));
+app.use(express.static("public"));   //add it when index.html will be done 
 
 app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });
