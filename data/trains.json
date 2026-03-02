@@ -1,6 +1,6 @@
 [
   {
-    "id": "6",
+    "id": "1772465814078",
     "trainNo": "123333",
     "trainName": "kalka express",
     "source": "chandigarh",
@@ -10,13 +10,13 @@
     "price": 200
   },
   {
-    "id": "1772463346078",
+    "id": "1772465893241",
     "trainNo": "123",
     "trainName": "kalka",
     "source": "chans",
     "destination": "c wc",
-    "totalSeats": 200,
-    "availableSeats": 200,
-    "price": 100
+    "totalSeats": 2,
+    "availableSeats": 2,
+    "price": 200
   }
 ]
