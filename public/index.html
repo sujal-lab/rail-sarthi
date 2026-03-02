@@ -1,9 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Railway Management</title>
+    <title>Train Manager</title>
 </head>
 <body>
-    <h1>Railway Management System Running</h1>
+
+    <h2>Add Train</h2>
+
+    <input type="text" id="trainName" placeholder="Train Name"><br><br>
+    <input type="text" id="source" placeholder="Source"><br><br>
+    <input type="text" id="destination" placeholder="Destination"><br><br>
+
+    <button onclick="addTrain()">Add Train</button>
+
+    <h2>All Trains</h2>
+    <button onclick="getTrains()">Load Trains</button>
+
+    <pre id="output"></pre>
+
+<script>
+function addTrain() {
+    const trainName = document.getElementById("trainName").value;
+    const source = document.getElementById("source").value;
+    const destination = document.getElementById("destination").value;
+
+    fetch("/trains", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            trainName,
+            source,
+            destination
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("Train Added Successfully!");
+        console.log(data);
+    });
+}
+
+function getTrains() {
+    fetch("/trains")
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("output").textContent =
+            JSON.stringify(data, null, 2);
+    });
+}
+</script>
+
 </body>
 </html>
