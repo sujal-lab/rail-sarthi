@@ -18,5 +18,15 @@
     "totalSeats": 2,
     "availableSeats": 2,
     "price": 200
+  },
+  {
+    "id": "1773028287045",
+    "trainNo": "12345678",
+    "trainName": "shatabdi",
+    "source": "chandigarh",
+    "destination": "delhi",
+    "totalSeats": 3000,
+    "availableSeats": 3000,
+    "price": 200000
   }
 ]
