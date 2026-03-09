@@ -28,5 +28,29 @@
     "totalSeats": 3000,
     "availableSeats": 3000,
     "price": 200000
+  },
+  {
+    "id": "1773032249997",
+    "trainNo": "12345",
+    "trainName": "Vande Bharat",
+    "source": "Delhi",
+    "destination": "Chandigarh",
+    "dep": "11:27",
+    "arr": "14:27",
+    "totalSeats": 1000,
+    "availableSeats": 1000,
+    "price": 800
+  },
+  {
+    "id": "1773032638236",
+    "trainNo": "1234567",
+    "trainName": "Rajdhani Express",
+    "source": "Delhi",
+    "destination": "Chandigarh",
+    "dep": "14:33",
+    "arr": "18:33",
+    "totalSeats": 700,
+    "availableSeats": 700,
+    "price": 2000
   }
 ]

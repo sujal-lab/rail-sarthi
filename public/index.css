@@ -11,3 +11,9 @@ html { scroll-behavior: smooth; }
         @keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
         .app-promo-box { background: linear-gradient(105deg, #1b2a5a 0%, #3a1c3d 50%, #d63447 100%); }
         .glass-nav { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        
+        /* Custom scrollbar for train list */
+        #trainListContainer::-webkit-scrollbar { width: 6px; }
+        #trainListContainer::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        #trainListContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        #trainListContainer::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

@@ -64,13 +64,15 @@ router.get("/:id", (req, res) => {
 // ============================
 router.post("/", (req, res) => {
     try {
-        let { trainNo, trainName, source, destination, totalSeats, price } = req.body;
+        let { trainNo, trainName, source, destination, dep, arr, totalSeats, price } = req.body;
 
         // Trim string fields
         trainNo = trainNo?.trim();
         trainName = trainName?.trim();
         source = source?.trim();
         destination = destination?.trim();
+        dep = dep?.trim();
+        arr = arr?.trim();
 
         totalSeats = Number(totalSeats);
         price = Number(price);
@@ -81,6 +83,8 @@ router.post("/", (req, res) => {
             !trainName ||
             !source ||
             !destination ||
+            !dep ||
+            !arr ||
             isNaN(totalSeats) ||
             isNaN(price)
         ) {
@@ -100,6 +104,8 @@ router.post("/", (req, res) => {
             trainName,
             source,
             destination,
+            dep,
+            arr,
             totalSeats,
             availableSeats: totalSeats,
             price
