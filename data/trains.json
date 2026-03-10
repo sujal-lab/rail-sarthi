@@ -52,5 +52,29 @@
     "totalSeats": 700,
     "availableSeats": 700,
     "price": 2000
+  },
+  {
+    "id": "1773034062107",
+    "trainNo": "2345",
+    "trainName": "Shatabdi",
+    "source": "Chandigarh",
+    "destination": "Delhi",
+    "dep": "14:57",
+    "arr": "18:57",
+    "totalSeats": 1000,
+    "availableSeats": 1000,
+    "price": 2000
+  },
+  {
+    "id": "1773120688073",
+    "trainNo": "12345679",
+    "trainName": "Maharaja Express",
+    "source": "Delhi",
+    "destination": "Mumbai",
+    "dep": "11:01",
+    "arr": "20:01",
+    "totalSeats": 500,
+    "availableSeats": 500,
+    "price": 200000
   }
 ]

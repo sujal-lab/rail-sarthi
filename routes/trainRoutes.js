@@ -2,6 +2,9 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+const validateTrain = require('../middleware/validateTrain');
+const validateId = require('../middleware/validateId');
+
 const router = express.Router();
 
 // Path of trains.json file
@@ -41,7 +44,7 @@ router.get("/", (req, res) => {
 // ============================
 // GET /trains/:id
 // ============================
-router.get("/:id", (req, res) => {
+router.get("/:id", validateId, (req, res) => {
     try {
         const trains = readTrains();
         const train = trains.find(t => t.id === req.params.id);
@@ -62,34 +65,10 @@ router.get("/:id", (req, res) => {
 // ============================
 // POST /trains
 // ============================
-router.post("/", (req, res) => {
+router.post("/", validateTrain, (req, res) => {
     try {
-        let { trainNo, trainName, source, destination, dep, arr, totalSeats, price } = req.body;
 
-        // Trim string fields
-        trainNo = trainNo?.trim();
-        trainName = trainName?.trim();
-        source = source?.trim();
-        destination = destination?.trim();
-        dep = dep?.trim();
-        arr = arr?.trim();
-
-        totalSeats = Number(totalSeats);
-        price = Number(price);
-
-        // Proper validation
-        if (
-            !trainNo ||
-            !trainName ||
-            !source ||
-            !destination ||
-            !dep ||
-            !arr ||
-            isNaN(totalSeats) ||
-            isNaN(price)
-        ) {
-            return res.status(400).json({ message: "All fields are required and must be valid" });
-        }
+        const { trainNo, trainName, source, destination, dep, arr, totalSeats, price } = req.body;
 
         const trains = readTrains();
 
@@ -126,8 +105,9 @@ router.post("/", (req, res) => {
 // ============================
 // DELETE /trains/:id
 // ============================
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateId, (req, res) => {
     try {
+
         const trains = readTrains();
         const updatedTrains = trains.filter(t => t.id !== req.params.id);
 
@@ -136,7 +116,10 @@ router.delete("/:id", (req, res) => {
         }
 
         writeTrains(updatedTrains);
-        res.status(200).json({ message: "Train deleted successfully" });
+
+        res.status(200).json({
+            message: "Train deleted successfully"
+        });
 
     } catch (error) {
         console.error("Delete Error:", error);

@@ -2,12 +2,15 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 
+const validateBooking = require("../middleware/validateBooking");
+const validateId = require("../middleware/validateId");
+
 const router = express.Router();
 
 const bookingsFile = path.join(__dirname, "../data/bookings.json");
 const trainsFile = path.join(__dirname, "../data/trains.json");
 
-// Ensure files exist to prevent read errors
+// Ensure files exist
 if (!fs.existsSync(bookingsFile)) {
     fs.writeFileSync(bookingsFile, JSON.stringify([], null, 2));
 }
@@ -46,19 +49,11 @@ router.get("/", (req, res) => {
 // ===============================
 // 2️⃣ POST /bookings
 // ===============================
-router.post("/", (req, res) => {
+router.post("/", validateBooking, (req, res) => {
     try {
-        // Extract the new age and date fields sent from the frontend
+
         const { trainId, passengerName, age, date } = req.body;
 
-        // Basic validation updated for new fields
-        if (!trainId || !passengerName || !age || !date) {
-            return res.status(400).json({
-                message: "trainId, passengerName, age, and date are required"
-            });
-        }
-
-        // Read trains
         const trains = readData(trainsFile);
 
         // Check if train exists
@@ -70,20 +65,17 @@ router.post("/", (req, res) => {
             });
         }
 
-        // Read existing bookings
         const bookings = readData(bookingsFile);
 
-        // Create new booking with the updated payload and a string ID
         const newBooking = {
-            id: "BKG" + Date.now().toString(), // BKG prefix matches frontend UI expectations
+            id: "BKG" + Date.now().toString(),
             trainId,
-            trainName: train.trainName, // Storing trainName prevents needing a join on the frontend
+            trainName: train.trainName,
             passengerName,
             age: Number(age),
             date
         };
 
-        // Save booking
         bookings.push(newBooking);
         writeData(bookingsFile, bookings);
 
@@ -91,6 +83,7 @@ router.post("/", (req, res) => {
             message: "Booking successful",
             booking: newBooking
         });
+
     } catch (error) {
         console.error("Booking Error:", error);
         res.status(500).json({ message: "Error processing booking" });
@@ -100,14 +93,14 @@ router.post("/", (req, res) => {
 // ===============================
 // 3️⃣ DELETE /bookings/:id
 // ===============================
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateId, (req, res) => {
     try {
-        // IDs are now strings (e.g., "BKG123456789"), so we remove parseInt()
-        const bookingId = req.params.id; 
+
+        const bookingId = req.params.id;
 
         const bookings = readData(bookingsFile);
 
-        const bookingIndex = bookings.findIndex(b => b.id === bookingId || b.id == bookingId);
+        const bookingIndex = bookings.findIndex(b => b.id === bookingId);
 
         if (bookingIndex === -1) {
             return res.status(404).json({
@@ -123,6 +116,7 @@ router.delete("/:id", (req, res) => {
             message: "Booking cancelled successfully",
             booking: deletedBooking[0]
         });
+
     } catch (error) {
         console.error("Delete Error:", error);
         res.status(500).json({ message: "Error cancelling booking" });
