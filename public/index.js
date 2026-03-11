@@ -192,30 +192,39 @@ const showBookingForm = () => {
 };
 
 /* ── Train search ────────────────────────────────────────────── */
+/* ── Updated Train search with Date Validation ──────────────── */
 $('ticketSearchForm').onsubmit = async (e) => {
     e.preventDefault();
 
     const from = $('ticketFrom').value.toLowerCase().trim();
     const to   = $('ticketTo').value.toLowerCase().trim();
-    const date = $('ticketDate').value;
+    const selectedDate = $('ticketDate').value; // This is the date user wants to travel
 
-    ticketState.date = date;
+    ticketState.date = selectedDate;
 
-    // Show loading state in results
-    $('ticketResults').innerHTML = `
-        <div class="text-center py-16">
-            <div class="inline-block w-10 h-10 border-4 border-ryblue-100 border-t-ryblue-600 rounded-full animate-spin mb-4"></div>
-            <p class="font-bold text-slate-400">Searching trains...</p>
-        </div>`;
+    // Show loading...
+    $('ticketResults').innerHTML = `<div class="text-center py-16">...</div>`;
 
     const allTrains = await apiCall('/trains') || uiData.mock.trains;
 
-    const filtered = allTrains.filter(t =>
-        t.source.toLowerCase().includes(from) &&
-        t.destination.toLowerCase().includes(to)
-    );
+    const filtered = allTrains.filter(t => {
+        // 1. Check Route
+        const routeMatch = t.source.toLowerCase().includes(from) && 
+                           t.destination.toLowerCase().includes(to);
+        
+        // 2. Check Date Range
+        // We convert strings to Date objects to compare them correctly
+        const travel = new Date(selectedDate);
+        const start = new Date(t.startDate);
+        const end = new Date(t.endDate);
 
-    renderTrainResults(filtered, from, to, date);
+        // A train is valid only if travel date is >= start AND <= end
+        const dateMatch = travel >= start && travel <= end;
+
+        return routeMatch && dateMatch;
+    });
+
+    renderTrainResults(filtered, from, to, selectedDate);
 };
 
 /* ── Render train result cards ───────────────────────────────── */
@@ -446,28 +455,265 @@ window.deleteTrain = async id => {
     }
 };
 
+/* ... (Keep your Tailwind config and Helpers at the top) ... */
+
+/* ── Updated Admin Logic: Sending Dates ── */
 $('addTrainForm').onsubmit = async (e) => {
     e.preventDefault();
     const payload = {
-        trainNo:    $('trainNo').value.trim(),
-        trainName:  $('trainName').value.trim(),
-        source:     $('source').value.trim(),
-        destination:$('destination').value.trim(),
-        dep:        $('depTime').value,
-        arr:        $('arrTime').value,
-        totalSeats: parseInt($('totalSeats').value),
-        price:      parseInt($('price').value)
+        trainNo:      $('trainNo').value.trim(),
+        trainName:    $('trainName').value.trim(),
+        source:       $('source').value.trim(),
+        destination:  $('destination').value.trim(),
+        dep:          $('depTime').value,
+        arr:          $('arrTime').value,
+        startDate:    $('startDate').value, // Grabbed from new inputs
+        endDate:      $('endDate').value,   // Grabbed from new inputs
+        totalSeats:   parseInt($('totalSeats').value),
+        price:        parseInt($('price').value)
     };
     const result = await apiCall('/trains', 'POST', payload);
     if (result === true) {
-        showToast('Train added!', 'success');
+        showToast('Train added to schedule!', 'success');
         $('addTrainForm').reset();
         fetchTrains();
     } else {
-        showToast(typeof result === 'string' ? result : 'Could not add train.', 'error');
+        showToast(typeof result === 'string' ? result : 'Error adding train.', 'error');
     }
 };
 
+/* ── Updated Search Filter: Zero-Time Comparison ── */
+$('ticketSearchForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const from = $('ticketFrom').value.toLowerCase().trim();
+    const to   = $('ticketTo').value.toLowerCase().trim();
+    const selectedDate = $('ticketDate').value;
+
+    ticketState.date = selectedDate;
+    $('ticketResults').innerHTML = `<div class="text-center py-16 animate-pulse text-slate-400 font-bold">Checking tracks...</div>`;
+
+    const allTrains = await apiCall('/trains') || [];
+
+    const filtered = allTrains.filter(t => {
+        const routeMatch = t.source.toLowerCase().includes(from) && 
+                           t.destination.toLowerCase().includes(to);
+        
+        // If train has no dates (old data), we skip date check to avoid errors
+        if (!t.startDate || !t.endDate) return routeMatch;
+
+        const travel = new Date(selectedDate).setHours(0,0,0,0);
+        const start  = new Date(t.startDate).setHours(0,0,0,0);
+        const end    = new Date(t.endDate).setHours(0,0,0,0);
+
+        return routeMatch && (travel >= start && travel <= end);
+    });
+
+    renderTrainResults(filtered, from, to, selectedDate);
+};
+
+async function getPlaceImage(place) {
+    try {
+        const res = await fetch(
+            `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(place)}`
+        );
+
+        const data = await res.json();
+
+        return data.thumbnail?.source || `https://picsum.photos/seed/${encodeURIComponent(place)}/400/300`;
+
+    } catch (err) {
+        return `https://picsum.photos/seed/${encodeURIComponent(place)}/400/300`;
+    }
+}
+
+/* ── Sarvam AI Discovery Logic ── */
+window.showBookingDetails = async (id) => {
+
+    const bookings = await apiCall('/bookings') || [];
+    const b = bookings.find(x => x.id === id);
+    if (!b) return;
+
+    $('modalTicketHeader').innerHTML = `
+        <div class="flex flex-col gap-1 relative z-10">
+            <span class="text-orange-400 font-black text-[10px] uppercase tracking-[0.3em] flex items-center gap-2">
+                <i class="ph-fill ph-sparkle"></i> AI Journey Guide
+            </span>
+            <h2 class="font-heading font-black text-3xl md:text-4xl">Exploring ${b.destination}</h2>
+            <div class="flex items-center gap-3 mt-2 text-white/80 text-sm font-medium">
+                <span>Train: ${b.trainName}</span>
+                <span>•</span>
+                <span>Travel Date: ${b.date}</span>
+            </div>
+        </div>
+    `;
+
+    $('aiDiscoveryContainer').innerHTML = `
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+            <div class="w-16 h-16 rounded-full border-4 border-ryblue-100 border-t-orange-500 animate-spin mb-6"></div>
+            <p class="text-slate-500 font-heading font-bold text-lg mb-2">Generating your custom itinerary...</p>
+            <p class="text-slate-400 text-sm">Sarvam AI is finding the best spots and hotels in ${b.destination}.</p>
+        </div>
+    `;
+
+    $('ticketModal').classList.remove('hidden');
+
+    try {
+
+        const promptText = `You are a travel expert API. Create a short travel guide for ${b.destination}. 
+        Return ONLY valid JSON:
+        {
+            "intro": "short welcome",
+            "spots": [
+                { "name": "spot", "desc": "description", "tip": "travel tip" }
+            ],
+            "hotels": [
+                { "name": "hotel", "desc": "description", "price": "approx price" }
+            ]
+        }
+        Include exactly 3 spots and 2 hotels.`;
+
+        const response = await fetch('https://api.sarvam.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer sk_p7rqzicm_kY4hWmW5zhJUtHsjdLHR9VgU'
+            },
+            body: JSON.stringify({
+                model: "sarvam-30b",
+                messages: [
+                    { role: "system", content: "Return JSON only." },
+                    { role: "user", content: promptText }
+                ],
+                temperature: 0.3
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API Error ${response.status}`);
+        }
+
+        const data = await response.json();
+        let aiResponse = data.choices[0].message.content;
+
+        aiResponse = aiResponse.replace(/```json/gi, '').replace(/```/gi, '').trim();
+
+        const guideData = JSON.parse(aiResponse);
+
+        /* ---------- SPOTS WITH REAL IMAGES ---------- */
+
+        let spotsHTML = await Promise.all(
+            guideData.spots.map(async (spot) => {
+
+                const img = await getPlaceImage(spot.name);
+                return `
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-md transition-shadow group flex flex-col">
+
+                    <div class="h-40 overflow-hidden relative">
+
+                        <img
+                        src="${img}"
+                        alt="${spot.name}"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+
+                        <h4 class="absolute bottom-4 left-4 right-4 font-heading font-black text-white text-lg leading-tight">
+                            ${spot.name}
+                        </h4>
+
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col">
+                        <p class="text-sm text-slate-600 mb-4 flex-1">${spot.desc}</p>
+
+                        <div class="bg-orange-50 text-orange-700 text-xs p-3 rounded-xl border border-orange-100 flex gap-2 items-start">
+                            <i class="ph-fill ph-lightbulb text-orange-500 text-base shrink-0"></i>
+                            <span class="font-medium">${spot.tip}</span>
+                        </div>
+                    </div>
+
+                </div>
+                `;
+            })
+        ).then(cards => cards.join(""));
+
+        /* ---------- HOTELS ---------- */
+
+        let hotelsHTML = guideData.hotels.map(hotel => `
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4 hover:border-ryblue-200 transition-colors">
+
+                <img
+                src="https://picsum.photos/seed/${encodeURIComponent(hotel.name + b.destination)}/100/100"
+                class="w-16 h-16 rounded-xl object-cover shrink-0 bg-slate-100">
+
+                <div class="flex-1">
+                    <h5 class="font-bold text-slate-800 text-sm leading-tight">${hotel.name}</h5>
+                    <p class="text-xs text-slate-500 mt-1 line-clamp-1">${hotel.desc}</p>
+                    <div class="text-emerald-600 font-bold text-xs mt-1">${hotel.price}</div>
+                </div>
+
+                <a
+                href="https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + b.destination)}"
+                target="_blank"
+                class="bg-ryblue-50 hover:bg-ryblue-600 text-ryblue-600 hover:text-white shrink-0 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                View
+                </a>
+
+            </div>
+        `).join("");
+
+        /* ---------- FINAL UI ---------- */
+
+        $('aiDiscoveryContainer').innerHTML = `
+            <div class="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-100 text-orange-900 font-medium">
+                ${guideData.intro}
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <div class="lg:col-span-2">
+                    <h3 class="font-heading font-black text-xl text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="ph-fill ph-camera text-ryblue-500"></i> Top Spots to Visit
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        ${spotsHTML}
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-heading font-black text-xl text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="ph-fill ph-bed text-ryblue-500"></i> Recommended Stays
+                    </h3>
+
+                    <div class="space-y-3">
+                        ${hotelsHTML}
+                    </div>
+
+                    <div class="mt-6 p-4 bg-ryblue-50 rounded-2xl text-center border border-ryblue-100">
+                        <i class="ph-fill ph-info text-ryblue-400 text-2xl mb-2"></i>
+                        <p class="text-xs text-slate-500 font-medium">
+                            Prices and availability may vary. Book early to secure the best rates!
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        `;
+
+    } catch (error) {
+
+        console.error("Fetch Error:", error);
+
+        $('aiDiscoveryContainer').innerHTML = `
+            <div class="p-6 bg-ryred-50 text-ryred-700 rounded-2xl text-sm font-bold border border-ryred-200 text-center">
+                <i class="ph-fill ph-warning-circle text-3xl mb-2"></i>
+                <p>Couldn't generate the AI guide at the moment.</p>
+                <p class="text-xs font-normal mt-1 opacity-80">${error.message}</p>
+            </div>
+        `;
+    }
+};
 /* ================================================================
    BOOKINGS — unchanged logic
    ================================================================ */
@@ -477,19 +723,28 @@ const fetchBookings = async () => renderBookings(await apiCall('/bookings') || u
 const renderBookings = bookings => {
     $('bookingsTableBody').innerHTML = bookings.length
         ? bookings.map(x => `
-            <tr class="hover:bg-slate-50/50 transition-colors">
-                <td class="p-6 font-mono font-bold text-ryblue-600">${x.id}</td>
+            <tr onclick="showBookingDetails('${x.id}')" 
+                class="group cursor-pointer hover:bg-slate-50/80 transition-all border-b border-slate-50 last:border-0">
+                <td class="p-6 font-mono font-bold text-ryblue-600">
+                    <div class="flex items-center gap-2">
+                        <i class="ph-bold ph-ticket text-slate-300 group-hover:text-ryred-500 transition-colors"></i>
+                        ${x.id}
+                    </div>
+                </td>
                 <td class="p-6 font-bold text-slate-800">${x.passengerName}</td>
-                <td class="p-6 text-slate-500">${x.trainName || x.trainId}</td>
-                <td class="p-6 text-slate-500">${x.date}</td>
+                <td class="p-6 text-slate-500">
+                    <div class="font-medium">${x.trainName || x.trainId}</div>
+                    <div class="text-[10px] uppercase tracking-tighter text-slate-400 font-bold">${x.destination || 'Destination'}</div>
+                </td>
+                <td class="p-6 text-slate-500 font-medium">${x.date}</td>
                 <td class="p-6">
-                    <span class="inline-flex items-center gap-1 text-xs font-bold bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full">
+                    <span class="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-full">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Confirmed
                     </span>
                 </td>
-                <td class="p-6 text-right">
+                <td class="p-6 text-right" onclick="event.stopPropagation()">
                     <button onclick="cancelBooking('${x.id}')"
-                        class="text-xs font-bold text-ryred-500 hover:text-ryred-600 bg-ryred-50 hover:bg-ryred-100 px-4 py-2 rounded-xl transition-colors">
+                        class="text-xs font-bold text-ryred-500 hover:text-white hover:bg-ryred-500 border border-ryred-100 px-4 py-2 rounded-xl transition-all">
                         Cancel
                     </button>
                 </td>

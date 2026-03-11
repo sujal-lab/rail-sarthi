@@ -49,28 +49,23 @@ router.get("/", (req, res) => {
 // ===============================
 // 2️⃣ POST /bookings
 // ===============================
+// ===============================
+// 2️⃣ POST /bookings (Updated)
+// ===============================
 router.post("/", validateBooking, (req, res) => {
     try {
-
         const { trainId, passengerName, age, date } = req.body;
-
         const trains = readData(trainsFile);
-
-        // Check if train exists
         const train = trains.find(t => t.id === trainId);
 
-        if (!train) {
-            return res.status(404).json({
-                message: "Train not found"
-            });
-        }
+        if (!train) return res.status(404).json({ message: "Train not found" });
 
         const bookings = readData(bookingsFile);
-
         const newBooking = {
             id: "BKG" + Date.now().toString(),
             trainId,
             trainName: train.trainName,
+            destination: train.destination, // <--- SAVED FOR AI DISCOVERY
             passengerName,
             age: Number(age),
             date
@@ -78,18 +73,11 @@ router.post("/", validateBooking, (req, res) => {
 
         bookings.push(newBooking);
         writeData(bookingsFile, bookings);
-
-        res.status(201).json({
-            message: "Booking successful",
-            booking: newBooking
-        });
-
-    } catch (error) {
-        console.error("Booking Error:", error);
+        res.status(201).json({ message: "Booking successful", booking: newBooking });
+    } catch (error) {   
         res.status(500).json({ message: "Error processing booking" });
     }
 });
-
 // ===============================
 // 3️⃣ DELETE /bookings/:id
 // ===============================

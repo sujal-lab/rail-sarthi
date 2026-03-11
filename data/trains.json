@@ -1,80 +1,44 @@
 [
   {
-    "id": "1772465814078",
-    "trainNo": "123333",
-    "trainName": "kalka express",
-    "source": "chandigarh",
-    "destination": "patiala",
-    "totalSeats": 10,
-    "availableSeats": 10,
-    "price": 200
+    "id": "1773240597567",
+    "trainNo": "1234",
+    "trainName": "Vande Bharat",
+    "source": "Delhi",
+    "destination": "Chandigarh",
+    "dep": "16:19",
+    "arr": "19:19",
+    "startDate": "2026-03-12",
+    "endDate": "2026-03-12",
+    "totalSeats": 1000,
+    "availableSeats": 1000,
+    "price": 1200
   },
   {
-    "id": "1772465893241",
-    "trainNo": "123",
-    "trainName": "kalka",
-    "source": "chans",
-    "destination": "c wc",
-    "totalSeats": 2,
-    "availableSeats": 2,
-    "price": 200
-  },
-  {
-    "id": "1773028287045",
-    "trainNo": "12345678",
-    "trainName": "shatabdi",
-    "source": "chandigarh",
-    "destination": "delhi",
-    "totalSeats": 3000,
-    "availableSeats": 3000,
-    "price": 200000
-  },
-  {
-    "id": "1773032249997",
+    "id": "1773240623339",
     "trainNo": "12345",
     "trainName": "Vande Bharat",
     "source": "Delhi",
     "destination": "Chandigarh",
-    "dep": "11:27",
-    "arr": "14:27",
+    "dep": "21:20",
+    "arr": "01:20",
+    "startDate": "2026-03-13",
+    "endDate": "2026-03-14",
     "totalSeats": 1000,
     "availableSeats": 1000,
-    "price": 800
+    "price": 1200
   },
   {
-    "id": "1773032638236",
-    "trainNo": "1234567",
+    "id": "1773242769608",
+    "trainNo": "12345678",
     "trainName": "Rajdhani Express",
-    "source": "Delhi",
-    "destination": "Chandigarh",
-    "dep": "14:33",
-    "arr": "18:33",
-    "totalSeats": 700,
-    "availableSeats": 700,
-    "price": 2000
-  },
-  {
-    "id": "1773034062107",
-    "trainNo": "2345",
-    "trainName": "Shatabdi",
-    "source": "Chandigarh",
+    "source": "Mumbai",
     "destination": "Delhi",
-    "dep": "14:57",
-    "arr": "18:57",
+    "dep": "21:55",
+    "arr": "01:56",
+    "startDate": "2026-03-16",
+    "endDate": "2026-03-17",
     "totalSeats": 1000,
     "availableSeats": 1000,
-    "price": 2000
-  },
-  {
-    "id": "1773120688073",
-    "trainNo": "12345679",
-    "trainName": "Maharaja Express",
-    "source": "Delhi",
-    "destination": "Mumbai",
-    "dep": "11:01",
-    "arr": "20:01",
-    "totalSeats": 500,
-    "availableSeats": 500,
-    "price": 200000
+    "price": 2999
   }
 ]

@@ -1,19 +1,110 @@
+/* ── Base Styles & Animations ── */
 html { scroll-behavior: smooth; }
-        body { -webkit-font-smoothing: antialiased; background-color: #f8fafc; background-image: radial-gradient(at 0% 0%, rgba(23,56,115,0.05) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(214,52,71,0.05) 0px, transparent 50%); background-attachment: fixed; }
-        .tab-content { display: none; animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1); }
-        .tab-content.active { display: block; }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 50; display: flex; flex-direction: column; gap: 12px; }
-        .toast { padding: 16px 24px; border-radius: 16px; color: white; font-weight: 600; font-family: 'Outfit', sans-serif; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); animation: slideIn 0.3s forwards; display: flex; align-items: center; gap: 10px; }
-        .toast.success { background: linear-gradient(135deg, #10b981, #059669); } .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        .toast.fade-out { animation: fadeOut 0.3s forwards; }
-        @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
-        .app-promo-box { background: linear-gradient(105deg, #1b2a5a 0%, #3a1c3d 50%, #d63447 100%); }
-        .glass-nav { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        
-        /* Custom scrollbar for train list */
-        #trainListContainer::-webkit-scrollbar { width: 6px; }
-        #trainListContainer::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-        #trainListContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-        #trainListContainer::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+body { 
+    -webkit-font-smoothing: antialiased; 
+    background-color: #f8fafc; 
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(23,56,115,0.05) 0px, transparent 50%), 
+        radial-gradient(at 100% 0%, rgba(214,52,71,0.05) 0px, transparent 50%); 
+    background-attachment: fixed; 
+}
+
+/* Tab Transitions */
+.tab-content { display: none; animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1); }
+.tab-content.active { display: block; }
+
+@keyframes scaleIn { 
+    from { opacity: 0; transform: scale(0.98) translateY(10px); } 
+    to { opacity: 1; transform: scale(1) translateY(0); } 
+}
+
+/* ── Toasts ── */
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 100; display: flex; flex-direction: column; gap: 12px; }
+.toast { 
+    padding: 16px 24px; border-radius: 16px; color: white; font-weight: 600; 
+    font-family: 'Outfit', sans-serif; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); 
+    animation: slideIn 0.3s forwards; display: flex; align-items: center; gap: 10px; 
+}
+.toast.success { background: linear-gradient(135deg, #10b981, #059669); } 
+.toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.toast.fade-out { animation: fadeOut 0.3s forwards; }
+
+@keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+
+/* ── UI Elements ── */
+.app-promo-box { background: linear-gradient(105deg, #1b2a5a 0%, #3a1c3d 50%, #d63447 100%); }
+.glass-nav { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+/* ── Custom Scrollbars ── */
+#trainListContainer::-webkit-scrollbar, 
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+
+#trainListContainer::-webkit-scrollbar-track, 
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+
+#trainListContainer::-webkit-scrollbar-thumb, 
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+
+#trainListContainer::-webkit-scrollbar-thumb:hover, 
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Discovery Modal & AI Guide ── */
+.modal-backdrop {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.modal-animate {
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalSlideUp {
+    from { opacity: 0; transform: scale(0.95) translateY(40px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* AI Saffron Insight Card */
+.ai-insight-box {
+    background: linear-gradient(135deg, #fffcf9 0%, #fff7ed 100%);
+    border-left: 4px solid #f97316;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.08);
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+}
+
+.ai-content-text {
+    line-height: 1.8;
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+/* ── Admin Date/Time Styling ── */
+input[type="date"], input[type="time"] {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #475569;
+}
+
+::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.4;
+    filter: grayscale(1);
+    transition: opacity 0.2s;
+}
+
+::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Timeline Polish (for the Ticket display) */
+.ticket-dashed-line {
+    background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+}

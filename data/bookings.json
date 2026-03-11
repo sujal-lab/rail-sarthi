@@ -1,26 +1,22 @@
 [
   {
-    "id": "BKG1773034024695",
-    "trainId": "1773032638236",
-    "trainName": "Rajdhani Express",
-    "passengerName": "Sujal Kandari ",
-    "age": 20,
-    "date": "2026-03-09"
-  },
-  {
-    "id": "BKG1773120461089",
-    "trainId": "1773032249997",
+    "id": "BKG1773240673113",
+    "trainId": "1773240623339",
     "trainName": "Vande Bharat",
-    "passengerName": "Sujal Kandari",
-    "age": 20,
-    "date": "2026-03-10"
-  },
-  {
-    "id": "BKG1773120710347",
-    "trainId": "1773120688073",
-    "trainName": "Maharaja Express",
+    "destination": "Chandigarh",
     "passengerName": "Sujal Kandari",
     "age": 19,
-    "date": "2026-03-10"
+    "date": "2026-03-14",
+    "dep": "21:20",
+    "arr": "01:20"
+  },
+  {
+    "id": "BKG1773242791737",
+    "trainId": "1773242769608",
+    "trainName": "Rajdhani Express",
+    "destination": "Delhi",
+    "passengerName": "Sujal Kandari",
+    "age": 20,
+    "date": "2026-03-16"
   }
 ]

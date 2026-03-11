@@ -61,18 +61,19 @@ router.get("/:id", validateId, (req, res) => {
     }
 });
 
-
 // ============================
-// POST /trains
+// POST /trains (Updated)
 // ============================
 router.post("/", validateTrain, (req, res) => {
     try {
-
-        const { trainNo, trainName, source, destination, dep, arr, totalSeats, price } = req.body;
+        const { 
+            trainNo, trainName, source, destination, 
+            dep, arr, totalSeats, price, 
+            startDate, endDate // <--- ADDED
+        } = req.body;
 
         const trains = readTrains();
 
-        // Check duplicate trainNo
         if (trains.some(t => t.trainNo === trainNo)) {
             return res.status(400).json({ message: "Train number already exists" });
         }
@@ -85,6 +86,8 @@ router.post("/", validateTrain, (req, res) => {
             destination,
             dep,
             arr,
+            startDate, // <--- SAVE TO JSON
+            endDate,   // <--- SAVE TO JSON
             totalSeats,
             availableSeats: totalSeats,
             price
@@ -92,15 +95,11 @@ router.post("/", validateTrain, (req, res) => {
 
         trains.push(newTrain);
         writeTrains(trains);
-
         res.status(201).json(newTrain);
-
     } catch (error) {
-        console.error("Add Error:", error);
         res.status(500).json({ message: "Error adding train" });
     }
 });
-
 
 // ============================
 // DELETE /trains/:id
