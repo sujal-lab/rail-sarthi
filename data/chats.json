@@ -27,5 +27,13 @@
     ],
     "totalVotes": 1,
     "timestamp": "2026-03-12T10:21:55.970Z"
+  },
+  {
+    "id": "1773324748302",
+    "room": "1773240623339_2026-03-14",
+    "type": "message",
+    "senderName": "Traveler 834",
+    "text": "hi",
+    "timestamp": "2026-03-12T14:12:28.303Z"
   }
 ]
