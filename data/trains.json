@@ -9,7 +9,7 @@
     "arr": "19:19",
     "startDate": "2026-03-12",
     "endDate": "2026-03-12",
-    "totalSeats": 1000,
+    "totalSeats": 10001,
     "availableSeats": 1000,
     "price": 1200
   },
@@ -39,7 +39,7 @@
     "endDate": "2026-03-17",
     "totalSeats": 1000,
     "availableSeats": 1000,
-    "price": 2999
+    "price": 29
   },
   {
     "id": "1773286583337",

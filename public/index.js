@@ -433,7 +433,11 @@ const renderAdminTrains = trains => {
                 <td class="p-6 font-bold text-slate-800">${x.trainName}</td>
                 <td class="p-6 text-slate-500">${x.source} → ${x.destination}</td>
                 <td class="p-6 font-bold text-emerald-600">₹${x.price}</td>
-                <td class="p-6 text-right">
+                <td class="p-6 text-right space-x-2">
+                    <button onclick="openEditModal('${x.id}')"
+                        class="text-xs font-bold text-ryblue-600 hover:text-ryblue-700 bg-ryblue-50 hover:bg-ryblue-100 px-4 py-2 rounded-xl transition-colors">
+                        Edit
+                    </button>
                     <button onclick="deleteTrain('${x.id}')"
                         class="text-xs font-bold text-ryred-500 hover:text-ryred-600 bg-ryred-50 hover:bg-ryred-100 px-4 py-2 rounded-xl transition-colors">
                         Delete
@@ -453,6 +457,84 @@ window.deleteTrain = async id => {
             showToast('Could not delete train.', 'error');
         }
     }
+};
+
+window.openEditModal = async (id) => {
+    const allTrains = await apiCall('/trains') || uiData.mock.trains;
+    const train = allTrains.find(t => t.id === id);
+    if (!train) return showToast('Train not found', 'error');
+
+    $('trainModal').classList.remove('hidden');
+    $('modalContent').innerHTML = `
+        <form id="editTrainForm" class="space-y-4">
+            <input type="hidden" id="editTrainId" value="${train.id}">
+            <input type="text" id="editTrainNo" required value="${train.trainNo}" placeholder="Train No"
+                class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 focus:border-ryblue-500 outline-none font-bold text-slate-700">
+            <input type="text" id="editTrainName" required value="${train.trainName}" placeholder="Train Name"
+                class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 focus:border-ryblue-500 outline-none font-bold text-slate-700">
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="editSource" required value="${train.source}" placeholder="From"
+                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 focus:border-ryblue-500 outline-none font-bold text-slate-700">
+                <input type="text" id="editDestination" required value="${train.destination}" placeholder="To"
+                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 focus:border-ryblue-500 outline-none font-bold text-slate-700">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Service Starts</label>
+                    <input type="date" id="editStartDate" value="${train.startDate || ''}" required
+                           class="w-full bg-slate-50 border border-transparent focus:border-ryblue-100 focus:bg-white p-3.5 rounded-xl text-sm font-medium outline-none transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Service Ends</label>
+                    <input type="date" id="editEndDate" value="${train.endDate || ''}" required
+                           class="w-full bg-slate-50 border border-transparent focus:border-ryblue-100 focus:bg-white p-3.5 rounded-xl text-sm font-medium outline-none transition-all">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Departure</label>
+                    <input type="time" id="editDepTime" value="${train.dep}" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 outline-none font-bold text-slate-700">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase">Arrival</label>
+                    <input type="time" id="editArrTime" value="${train.arr}" required class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 outline-none font-bold text-slate-700">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="number" id="editTotalSeats" required min="1" value="${train.totalSeats}" placeholder="Seats"
+                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 outline-none font-bold text-slate-700">
+                <input type="number" id="editPrice" required min="0" value="${train.price}" placeholder="Price ₹"
+                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-xl p-3.5 outline-none font-bold text-slate-700">
+            </div>
+            <button type="submit" class="w-full bg-ryblue-600 hover:bg-ryblue-700 text-white font-heading font-bold text-lg py-4 rounded-xl mt-4 transition-colors">
+                Save Changes
+            </button>
+        </form>
+    `;
+
+    $('editTrainForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const payload = {
+            trainNo:      $('editTrainNo').value.trim(),
+            trainName:    $('editTrainName').value.trim(),
+            source:       $('editSource').value.trim(),
+            destination:  $('editDestination').value.trim(),
+            dep:          $('editDepTime').value,
+            arr:          $('editArrTime').value,
+            startDate:    $('editStartDate').value,
+            endDate:      $('editEndDate').value,
+            totalSeats:   parseInt($('editTotalSeats').value),
+            price:          parseInt($('editPrice').value)
+        };
+        const result = await apiCall(`/trains/${id}`, 'PUT', payload);
+        if (result === true || result.id || result.trainNo) {
+            showToast('Train updated successfully!', 'success');
+            $('trainModal').classList.add('hidden');
+            fetchTrains();
+        } else {
+            showToast(typeof result === 'string' ? result : 'Error updating train.', 'error');
+        }
+    };
 };
 
 /* ... (Keep your Tailwind config and Helpers at the top) ... */
