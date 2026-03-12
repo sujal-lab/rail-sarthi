@@ -42,17 +42,31 @@
     "price": 29
   },
   {
-    "id": "1773286583337",
-    "trainNo": "12345672",
-    "trainName": "Train",
+    "id": "1773342329646",
+    "trainNo": "3451411",
+    "trainName": "Vande Bharat",
+    "source": "Panchkula",
+    "destination": "Una",
+    "dep": "12:35",
+    "arr": "14:35",
+    "startDate": "2026-03-14",
+    "endDate": "2026-03-14",
+    "totalSeats": 50,
+    "availableSeats": 50,
+    "price": 500
+  },
+  {
+    "id": "1773342518359",
+    "trainNo": "23452443",
+    "trainName": "Chandigarh Travels",
     "source": "Chandigarh",
-    "destination": "Kolkata",
-    "dep": "12:06",
-    "arr": "09:09",
-    "startDate": "2026-03-12",
+    "destination": "Mumbai",
+    "dep": "12:38",
+    "arr": "20:38",
+    "startDate": "2026-03-13",
     "endDate": "2026-03-13",
-    "totalSeats": 30,
-    "availableSeats": 30,
-    "price": 20
+    "totalSeats": 300,
+    "availableSeats": 300,
+    "price": 2000
   }
 ]

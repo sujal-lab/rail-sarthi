@@ -20,12 +20,30 @@
     "date": "2026-03-16"
   },
   {
-    "id": "BKG1773286651600",
+    "id": "BKG1773342132405",
     "trainId": "1773286583337",
     "trainName": "Train",
     "destination": "Kolkata",
-    "passengerName": "sajal",
-    "age": 18,
+    "passengerName": "Sajal",
+    "age": 90,
     "date": "2026-03-12"
+  },
+  {
+    "id": "BKG1773342434160",
+    "trainId": "1773342329646",
+    "trainName": "Vande Bharat",
+    "destination": "Una",
+    "passengerName": "Sajal Vasisht",
+    "age": 19,
+    "date": "2026-03-14"
+  },
+  {
+    "id": "BKG1773342562257",
+    "trainId": "1773342518359",
+    "trainName": "Chandigarh Travels",
+    "destination": "Mumbai",
+    "passengerName": "Sajal Vasisht",
+    "age": 19,
+    "date": "2026-03-13"
   }
 ]

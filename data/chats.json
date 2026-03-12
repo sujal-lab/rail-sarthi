@@ -35,5 +35,34 @@
     "senderName": "Traveler 834",
     "text": "hi",
     "timestamp": "2026-03-12T14:12:28.303Z"
+  },
+  {
+    "id": "1773342148786",
+    "room": "1773242769608_2026-03-16",
+    "type": "message",
+    "senderName": "Traveler 324",
+    "text": "hi",
+    "timestamp": "2026-03-12T19:02:28.786Z"
+  },
+  {
+    "id": "1773342186078",
+    "room": "1773242769608_2026-03-16",
+    "type": "poll",
+    "senderName": "Traveler 324",
+    "question": "Anyone wants to book cab to red fort?",
+    "options": [
+      {
+        "id": "0",
+        "text": "Yes",
+        "votes": 29
+      },
+      {
+        "id": "1",
+        "text": "No",
+        "votes": 3
+      }
+    ],
+    "totalVotes": 32,
+    "timestamp": "2026-03-12T19:03:06.078Z"
   }
 ]
