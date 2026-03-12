@@ -1,9 +1,4 @@
-/* ================================================================
-   Rail-Sarthi — index.js
-   Refactored: Home searches redirect to Tickets tab.
-   All booking happens inside the Train Tickets tab.
-   Admin & Bookings logic unchanged.
-   ================================================================ */
+
 
 tailwind.config = {
     theme: {
@@ -22,7 +17,7 @@ tailwind.config = {
     }
 };
 
-/* ── Helpers ─────────────────────────────────────────────────── */
+
 const API_BASE = '';
 const $ = id => document.getElementById(id);
 
@@ -46,7 +41,7 @@ const uiData = {
     mock: { trains: [], bookings: [] }
 };
 
-/* ── Static content injection ────────────────────────────────── */
+
 $('featuresGrid').innerHTML = uiData.features.map(f => `
     <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-float transition-all ${f.cls || ''}">
         <div class="w-16 h-16 rounded-2xl bg-${f.bg}-50 flex items-center justify-center mb-6 group-hover:scale-110 transition">
@@ -84,7 +79,7 @@ $('footerLinks').innerHTML = uiData.footer.map(f => `
         <p class="text-sm font-bold">Rail-Sarthi Tech Pvt Ltd</p>
     </div>`;
 
-/* ── Toast notifications ─────────────────────────────────────── */
+
 const showToast = (msg, type = 'success') => {
     const t = document.createElement('div');
     t.className = `toast ${type}`;
@@ -96,7 +91,7 @@ const showToast = (msg, type = 'success') => {
     }, 3000);
 };
 
-/* ── Tab navigation ──────────────────────────────────────────── */
+
 const switchTab = id => {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => {
@@ -118,7 +113,7 @@ const switchTab = id => {
     if (id === 'admin')    fetchTrains();
 };
 
-/* ── API wrapper ─────────────────────────────────────────────── */
+
 const apiCall = async (url, method = 'GET', body = null) => {
     try {
         const r = await fetch(API_BASE + url, {
@@ -136,7 +131,7 @@ const apiCall = async (url, method = 'GET', body = null) => {
     }
 };
 
-/* ── Time formatter ──────────────────────────────────────────── */
+
 const formatTime = (timeStr) => {
     if (!timeStr) return '--:--';
     const [h, m] = timeStr.split(':');
@@ -146,79 +141,69 @@ const formatTime = (timeStr) => {
     return `${hours}:${m} ${ampm}`;
 };
 
-/* ================================================================
-   HOME PAGE — Search only; redirect to Tickets tab
-   ================================================================ */
+
 
 $('homeSearchForm').onsubmit = async (e) => {
     e.preventDefault();
 
-    // Mirror values into the Tickets tab search fields
     $('ticketFrom').value = $('homeFrom').value;
     $('ticketTo').value   = $('homeTo').value;
     $('ticketDate').value = $('homeDate').value;
 
-    // Switch to Tickets tab
+  
     switchTab('tickets');
 
-    // Auto-trigger the search on the Tickets tab
+   
     $('ticketSearchForm').dispatchEvent(new Event('submit'));
 };
 
-/* ================================================================
-   TRAIN TICKETS TAB
-   ================================================================ */
 
-/* Booking state shared across the tickets page */
 let ticketState = {
     date:      null,
     trainId:   null,
     trainInfo: null
 };
 
-/* ── Show / hide sub-sections inside the Tickets tab ─────────── */
 const showTicketResults = () => {
     $('ticketSearchSection').classList.remove('hidden');
     $('ticketBookingSection').classList.add('hidden');
-    // Scroll back to top of results
+  
     $('ticketResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 const showBookingForm = () => {
     $('ticketBookingSection').classList.remove('hidden');
     $('ticketSearchSection').classList.add('hidden');
-    // Scroll to booking form
+   
     $('ticketBookingSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-/* ── Train search ────────────────────────────────────────────── */
-/* ── Updated Train search with Date Validation ──────────────── */
+
 $('ticketSearchForm').onsubmit = async (e) => {
     e.preventDefault();
 
     const from = $('ticketFrom').value.toLowerCase().trim();
     const to   = $('ticketTo').value.toLowerCase().trim();
-    const selectedDate = $('ticketDate').value; // This is the date user wants to travel
+    const selectedDate = $('ticketDate').value; 
 
     ticketState.date = selectedDate;
 
-    // Show loading...
+  
     $('ticketResults').innerHTML = `<div class="text-center py-16">...</div>`;
 
     const allTrains = await apiCall('/trains') || uiData.mock.trains;
 
     const filtered = allTrains.filter(t => {
-        // 1. Check Route
+     
         const routeMatch = t.source.toLowerCase().includes(from) && 
                            t.destination.toLowerCase().includes(to);
         
-        // 2. Check Date Range
-        // We convert strings to Date objects to compare them correctly
+ 
         const travel = new Date(selectedDate);
         const start = new Date(t.startDate);
         const end = new Date(t.endDate);
 
-        // A train is valid only if travel date is >= start AND <= end
+       
         const dateMatch = travel >= start && travel <= end;
 
         return routeMatch && dateMatch;
@@ -227,7 +212,7 @@ $('ticketSearchForm').onsubmit = async (e) => {
     renderTrainResults(filtered, from, to, selectedDate);
 };
 
-/* ── Render train result cards ───────────────────────────────── */
+
 const renderTrainResults = (trains, from, to, date) => {
     if (!trains.length) {
         $('ticketResults').innerHTML = `
@@ -241,7 +226,7 @@ const renderTrainResults = (trains, from, to, date) => {
         return;
     }
 
-    // Results header
+   
     const headerHtml = `
         <div class="flex items-center justify-between mb-5">
             <div>
@@ -255,7 +240,7 @@ const renderTrainResults = (trains, from, to, date) => {
         </div>`;
 
     const cardsHtml = trains.map(t => {
-        // Calculate duration roughly if both times exist
+       
         let durationBadge = '';
         if (t.dep && t.arr) {
             const [dh, dm] = t.dep.split(':').map(Number);
@@ -319,18 +304,18 @@ const renderTrainResults = (trains, from, to, date) => {
     $('ticketResults').innerHTML = headerHtml + `<div class="grid grid-cols-1 md:grid-cols-2 gap-5">${cardsHtml}</div>`;
 };
 
-/* ── User clicks "Select & Book" on a train card ─────────────── */
+
 window.selectTrain = async (id) => {
     ticketState.trainId = id;
 
-    // Fetch full train list to find the selected train
+    
     const allTrains = await apiCall('/trains') || uiData.mock.trains;
     const train = allTrains.find(t => t.id === id);
     if (!train) { showToast('Train not found. Please refresh.', 'error'); return; }
 
     ticketState.trainInfo = train;
 
-    // Populate the selected train summary sidebar
+    
     $('selectedTrainSummary').innerHTML = `
         <div class="text-center pb-4 border-b border-slate-100">
             <div class="font-heading font-black text-xl text-slate-800">${train.trainName}</div>
@@ -371,19 +356,19 @@ window.selectTrain = async (id) => {
         </div>
     `;
 
-    // Populate fare in the booking form
+    
     $('fareDisplay').textContent    = `₹${train.price}`;
     $('totalFareDisplay').textContent = `₹${train.price}`;
 
-    // Reset the booking form fields
+   
     $('passengerName').value = '';
     $('passengerAge').value  = '';
 
-    // Slide to booking form
+   
     showBookingForm();
 };
 
-/* ── Confirm booking ─────────────────────────────────────────── */
+
 $('ticketBookingForm').onsubmit = async (e) => {
     e.preventDefault();
 
@@ -411,7 +396,7 @@ $('ticketBookingForm').onsubmit = async (e) => {
 
     if (result === true) {
         showToast('🎉 Booking confirmed! Check My Bookings.', 'success');
-        // Reset and go back to search
+        
         ticketState = { date: null, trainId: null, trainInfo: null };
         $('ticketBookingForm').reset();
         showTicketResults();
@@ -420,9 +405,7 @@ $('ticketBookingForm').onsubmit = async (e) => {
     }
 };
 
-/* ================================================================
-   ADMIN — unchanged logic
-   ================================================================ */
+
 
 const fetchTrains = async () => renderAdminTrains(await apiCall('/trains') || uiData.mock.trains);
 
@@ -455,9 +438,7 @@ window.deleteTrain = async id => {
     }
 };
 
-/* ... (Keep your Tailwind config and Helpers at the top) ... */
 
-/* ── Updated Admin Logic: Sending Dates ── */
 $('addTrainForm').onsubmit = async (e) => {
     e.preventDefault();
     const payload = {
@@ -467,8 +448,8 @@ $('addTrainForm').onsubmit = async (e) => {
         destination:  $('destination').value.trim(),
         dep:          $('depTime').value,
         arr:          $('arrTime').value,
-        startDate:    $('startDate').value, // Grabbed from new inputs
-        endDate:      $('endDate').value,   // Grabbed from new inputs
+        startDate:    $('startDate').value, 
+        endDate:      $('endDate').value,  
         totalSeats:   parseInt($('totalSeats').value),
         price:        parseInt($('price').value)
     };
@@ -482,7 +463,7 @@ $('addTrainForm').onsubmit = async (e) => {
     }
 };
 
-/* ── Updated Search Filter: Zero-Time Comparison ── */
+
 $('ticketSearchForm').onsubmit = async (e) => {
     e.preventDefault();
     const from = $('ticketFrom').value.toLowerCase().trim();
@@ -498,7 +479,7 @@ $('ticketSearchForm').onsubmit = async (e) => {
         const routeMatch = t.source.toLowerCase().includes(from) && 
                            t.destination.toLowerCase().includes(to);
         
-        // If train has no dates (old data), we skip date check to avoid errors
+    
         if (!t.startDate || !t.endDate) return routeMatch;
 
         const travel = new Date(selectedDate).setHours(0,0,0,0);
@@ -526,7 +507,6 @@ async function getPlaceImage(place) {
     }
 }
 
-/* ── Sarvam AI Discovery Logic ── */
 window.showBookingDetails = async (id) => {
 
     const bookings = await apiCall('/bookings') || [];
@@ -599,7 +579,7 @@ window.showBookingDetails = async (id) => {
 
         const guideData = JSON.parse(aiResponse);
 
-        /* ---------- SPOTS WITH REAL IMAGES ---------- */
+       
 
         let spotsHTML = await Promise.all(
             guideData.spots.map(async (spot) => {
@@ -637,7 +617,7 @@ window.showBookingDetails = async (id) => {
             })
         ).then(cards => cards.join(""));
 
-        /* ---------- HOTELS ---------- */
+        
 
         let hotelsHTML = guideData.hotels.map(hotel => `
             <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4 hover:border-ryblue-200 transition-colors">
@@ -662,7 +642,7 @@ window.showBookingDetails = async (id) => {
             </div>
         `).join("");
 
-        /* ---------- FINAL UI ---------- */
+      
 
         $('aiDiscoveryContainer').innerHTML = `
             <div class="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-100 text-orange-900 font-medium">
@@ -714,9 +694,7 @@ window.showBookingDetails = async (id) => {
         `;
     }
 };
-/* ================================================================
-   BOOKINGS — unchanged logic
-   ================================================================ */
+
 
 const fetchBookings = async () => renderBookings(await apiCall('/bookings') || uiData.mock.bookings);
 
@@ -764,18 +742,16 @@ window.cancelBooking = async id => {
     }
 };
 
-/* ================================================================
-   INIT
-   ================================================================ */
+
 window.onload = () => {
     const today = new Date().toISOString().split('T')[0];
 
-    // Set date minimums & defaults
+  
     $('homeDate').min   = today;
     $('homeDate').value = today;
     $('ticketDate').min = today;
     $('ticketDate').value = today;
 
-    // Preload admin trains
+   
     fetchTrains();
 };
