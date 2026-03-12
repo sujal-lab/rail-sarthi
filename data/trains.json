@@ -40,5 +40,19 @@
     "totalSeats": 1000,
     "availableSeats": 1000,
     "price": 2999
+  },
+  {
+    "id": "1773286583337",
+    "trainNo": "12345672",
+    "trainName": "Train",
+    "source": "Chandigarh",
+    "destination": "Kolkata",
+    "dep": "11:06",
+    "arr": "09:09",
+    "startDate": "2026-03-12",
+    "endDate": "2026-03-13",
+    "totalSeats": 30,
+    "availableSeats": 30,
+    "price": 20
   }
 ]
