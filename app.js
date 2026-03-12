@@ -31,7 +31,7 @@ app.use((req, res) => {
     res.status(404).json({ message: "Route not found" });
 });
 
-// Global error handler (must be last)
+// Global error handler
 app.use(errorHandler);
 
 module.exports = app;
