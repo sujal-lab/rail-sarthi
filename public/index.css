@@ -1,4 +1,4 @@
-/* ── Base Styles & Animations ── */
+/* Base Styles & Animations  */
 html { scroll-behavior: smooth; }
 
 body { 
@@ -19,7 +19,7 @@ body {
     to { opacity: 1; transform: scale(1) translateY(0); } 
 }
 
-/* ── Toasts ── */
+/*  Toasts  */
 #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 100; display: flex; flex-direction: column; gap: 12px; }
 .toast { 
     padding: 16px 24px; border-radius: 16px; color: white; font-weight: 600; 
@@ -33,7 +33,7 @@ body {
 @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
 
-/* ── UI Elements ── */
+
 .app-promo-box { background: linear-gradient(105deg, #1b2a5a 0%, #3a1c3d 50%, #d63447 100%); }
 .glass-nav { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
