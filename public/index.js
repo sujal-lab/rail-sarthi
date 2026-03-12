@@ -1,10 +1,3 @@
-/* ================================================================
-   Rail-Sarthi — index.js
-   Refactored: Home searches redirect to Tickets tab.
-   All booking happens inside the Train Tickets tab.
-   Admin & Bookings logic unchanged.
-   ================================================================ */
-
 tailwind.config = {
     theme: {
         extend: {
@@ -22,7 +15,7 @@ tailwind.config = {
     }
 };
 
-/* ── Helpers ─────────────────────────────────────────────────── */
+/*  Helpers  */
 const API_BASE = '';
 const $ = id => document.getElementById(id);
 
@@ -46,7 +39,7 @@ const uiData = {
     mock: { trains: [], bookings: [] }
 };
 
-/* ── Static content injection ────────────────────────────────── */
+/*  Static content injection  */
 $('featuresGrid').innerHTML = uiData.features.map(f => `
     <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-float transition-all ${f.cls || ''}">
         <div class="w-16 h-16 rounded-2xl bg-${f.bg}-50 flex items-center justify-center mb-6 group-hover:scale-110 transition">
@@ -84,7 +77,7 @@ $('footerLinks').innerHTML = uiData.footer.map(f => `
         <p class="text-sm font-bold">Rail-Sarthi Tech Pvt Ltd</p>
     </div>`;
 
-/* ── Toast notifications ─────────────────────────────────────── */
+/*  Toast notifications  */
 const showToast = (msg, type = 'success') => {
     const t = document.createElement('div');
     t.className = `toast ${type}`;
@@ -96,7 +89,7 @@ const showToast = (msg, type = 'success') => {
     }, 3000);
 };
 
-/* ── Tab navigation ──────────────────────────────────────────── */
+/*  Tab navigation  */
 const switchTab = id => {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => {
@@ -118,7 +111,7 @@ const switchTab = id => {
     if (id === 'admin')    fetchTrains();
 };
 
-/* ── API wrapper ─────────────────────────────────────────────── */
+/* API wrapper  */
 const apiCall = async (url, method = 'GET', body = null) => {
     try {
         const r = await fetch(API_BASE + url, {
@@ -136,7 +129,7 @@ const apiCall = async (url, method = 'GET', body = null) => {
     }
 };
 
-/* ── Time formatter ──────────────────────────────────────────── */
+/* Time formatter */
 const formatTime = (timeStr) => {
     if (!timeStr) return '--:--';
     const [h, m] = timeStr.split(':');
@@ -146,9 +139,7 @@ const formatTime = (timeStr) => {
     return `${hours}:${m} ${ampm}`;
 };
 
-/* ================================================================
-   HOME PAGE — Search only; redirect to Tickets tab
-   ================================================================ */
+/*  HOME PAGE — Search only; redirect to Tickets tab */
 
 $('homeSearchForm').onsubmit = async (e) => {
     e.preventDefault();
@@ -165,9 +156,7 @@ $('homeSearchForm').onsubmit = async (e) => {
     $('ticketSearchForm').dispatchEvent(new Event('submit'));
 };
 
-/* ================================================================
-   TRAIN TICKETS TAB
-   ================================================================ */
+/*  TRAIN TICKETS TAB */
 
 /* Booking state shared across the tickets page */
 let ticketState = {
@@ -176,7 +165,7 @@ let ticketState = {
     trainInfo: null
 };
 
-/* ── Show / hide sub-sections inside the Tickets tab ─────────── */
+/* Show / hide sub-sections inside the Tickets tab  */
 const showTicketResults = () => {
     $('ticketSearchSection').classList.remove('hidden');
     $('ticketBookingSection').classList.add('hidden');
@@ -191,8 +180,8 @@ const showBookingForm = () => {
     $('ticketBookingSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-/* ── Train search ────────────────────────────────────────────── */
-/* ── Updated Train search with Date Validation ──────────────── */
+/*  Train search  */
+/*  Updated Train search with Date Validation */
 $('ticketSearchForm').onsubmit = async (e) => {
     e.preventDefault();
 
@@ -227,7 +216,7 @@ $('ticketSearchForm').onsubmit = async (e) => {
     renderTrainResults(filtered, from, to, selectedDate);
 };
 
-/* ── Render train result cards ───────────────────────────────── */
+/* Render train result cards */
 const renderTrainResults = (trains, from, to, date) => {
     if (!trains.length) {
         $('ticketResults').innerHTML = `
@@ -319,7 +308,7 @@ const renderTrainResults = (trains, from, to, date) => {
     $('ticketResults').innerHTML = headerHtml + `<div class="grid grid-cols-1 md:grid-cols-2 gap-5">${cardsHtml}</div>`;
 };
 
-/* ── User clicks "Select & Book" on a train card ─────────────── */
+/* User clicks "Select & Book" on a train card */
 window.selectTrain = async (id) => {
     ticketState.trainId = id;
 
@@ -383,7 +372,7 @@ window.selectTrain = async (id) => {
     showBookingForm();
 };
 
-/* ── Confirm booking ─────────────────────────────────────────── */
+/*Confirm booking */
 $('ticketBookingForm').onsubmit = async (e) => {
     e.preventDefault();
 
@@ -420,9 +409,7 @@ $('ticketBookingForm').onsubmit = async (e) => {
     }
 };
 
-/* ================================================================
-   ADMIN — unchanged logic
-   ================================================================ */
+/* ADMIN — unchanged logic*/
 
 const fetchTrains = async () => renderAdminTrains(await apiCall('/trains') || uiData.mock.trains);
 
@@ -455,9 +442,9 @@ window.deleteTrain = async id => {
     }
 };
 
-/* ... (Keep your Tailwind config and Helpers at the top) ... */
+/*  (Keep your Tailwind config and Helpers at the top) */
 
-/* ── Updated Admin Logic: Sending Dates ── */
+/* Updated Admin Logic: Sending Dates */
 $('addTrainForm').onsubmit = async (e) => {
     e.preventDefault();
     const payload = {
@@ -482,7 +469,7 @@ $('addTrainForm').onsubmit = async (e) => {
     }
 };
 
-/* ── Updated Search Filter: Zero-Time Comparison ── */
+/* Updated Search Filter: Zero-Time Comparison */
 $('ticketSearchForm').onsubmit = async (e) => {
     e.preventDefault();
     const from = $('ticketFrom').value.toLowerCase().trim();
@@ -526,7 +513,7 @@ async function getPlaceImage(place) {
     }
 }
 
-/* ── Sarvam AI Discovery Logic ── */
+/* Sarvam AI Discovery Logic */
 window.showBookingDetails = async (id) => {
 
     const bookings = await apiCall('/bookings') || [];
@@ -599,7 +586,7 @@ window.showBookingDetails = async (id) => {
 
         const guideData = JSON.parse(aiResponse);
 
-        /* ---------- SPOTS WITH REAL IMAGES ---------- */
+        /* SPOTS WITH REAL IMAGES */
 
         let spotsHTML = await Promise.all(
             guideData.spots.map(async (spot) => {
@@ -637,7 +624,7 @@ window.showBookingDetails = async (id) => {
             })
         ).then(cards => cards.join(""));
 
-        /* ---------- HOTELS ---------- */
+        /* HOTELS */
 
         let hotelsHTML = guideData.hotels.map(hotel => `
             <div class="bg-white p-4 rounded-2xl border border-slate-100 flex items-center gap-4 hover:border-ryblue-200 transition-colors">
@@ -662,7 +649,7 @@ window.showBookingDetails = async (id) => {
             </div>
         `).join("");
 
-        /* ---------- FINAL UI ---------- */
+        /* FINAL UI */
 
         $('aiDiscoveryContainer').innerHTML = `
             <div class="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-orange-100 text-orange-900 font-medium">
@@ -714,9 +701,7 @@ window.showBookingDetails = async (id) => {
         `;
     }
 };
-/* ================================================================
-   BOOKINGS — unchanged logic
-   ================================================================ */
+/* BOOKINGS — unchanged logic*/
 
 const fetchBookings = async () => renderBookings(await apiCall('/bookings') || uiData.mock.bookings);
 
@@ -764,9 +749,7 @@ window.cancelBooking = async id => {
     }
 };
 
-/* ================================================================
-   INIT
-   ================================================================ */
+/* INIT */
 window.onload = () => {
     const today = new Date().toISOString().split('T')[0];
 

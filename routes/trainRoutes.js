@@ -27,9 +27,7 @@ function writeTrains(data) {
 }
 
 
-// ============================
 // GET /trains
-// ============================
 router.get("/", (req, res) => {
     try {
         const trains = readTrains();
@@ -41,9 +39,7 @@ router.get("/", (req, res) => {
 });
 
 
-// ============================
 // GET /trains/:id
-// ============================
 router.get("/:id", validateId, (req, res) => {
     try {
         const trains = readTrains();
@@ -61,15 +57,13 @@ router.get("/:id", validateId, (req, res) => {
     }
 });
 
-// ============================
 // POST /trains (Updated)
-// ============================
 router.post("/", validateTrain, (req, res) => {
     try {
         const { 
             trainNo, trainName, source, destination, 
             dep, arr, totalSeats, price, 
-            startDate, endDate // <--- ADDED
+            startDate, endDate 
         } = req.body;
 
         const trains = readTrains();
@@ -86,8 +80,8 @@ router.post("/", validateTrain, (req, res) => {
             destination,
             dep,
             arr,
-            startDate, // <--- SAVE TO JSON
-            endDate,   // <--- SAVE TO JSON
+            startDate, 
+            endDate,   
             totalSeats,
             availableSeats: totalSeats,
             price
@@ -101,9 +95,7 @@ router.post("/", validateTrain, (req, res) => {
     }
 });
 
-// ============================
 // DELETE /trains/:id
-// ============================
 router.delete("/:id", validateId, (req, res) => {
     try {
 

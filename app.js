@@ -1,5 +1,5 @@
 const express = require("express");
-// const cors = require("cors");   // ✅ ADD THIS
+// const cors = require("cors");   
 
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -9,7 +9,6 @@ const bookingRoutes = require("./routes/bookingRoutes");
 
 const app = express();
 
-// ✅ Enable CORS (VERY IMPORTANT)
 // app.use(cors());
 
 // Parse JSON bodies
