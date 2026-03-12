@@ -11,7 +11,7 @@
 </head>
 <body class="text-slate-800 selection:bg-ryred-500 selection:text-white">
 
-
+    <!-- Navbar -->
     <nav class="glass-nav border-b border-white/50 shadow-sm sticky top-0 z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
             <div class="flex items-center gap-3 cursor-pointer group" onclick="switchTab('home')">
@@ -32,12 +32,13 @@
     <div id="toast-container"></div>
 
     <main>
-
-
+        <!-- ============================================================ -->
+        <!-- TAB 1: HOME — Search only, no booking flow here              -->
+        <!-- ============================================================ -->
         <section id="home" class="tab-content active relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div class="flex flex-col lg:flex-row gap-12 items-center justify-between">
 
-              
+                <!-- Hero Text -->
                 <div class="w-full lg:w-5/12 text-center lg:text-left">
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ryblue-50 text-ryblue-600 font-bold text-sm font-heading mb-6 border border-ryblue-100">
                         <span class="w-2 h-2 rounded-full bg-ryred-500 animate-pulse"></span> Live Train Tracking
@@ -56,7 +57,7 @@
                     </div>
                 </div>
 
-              
+                <!-- Home Search Card -->
                 <div class="w-full lg:w-6/12 relative">
                     <div class="absolute -inset-4 bg-gradient-to-r from-ryblue-100 to-ryred-100 opacity-50 blur-2xl rounded-[3rem] -z-10"></div>
                     <div class="bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-glass border border-white/60 p-8 lg:p-10 relative overflow-hidden">
@@ -103,14 +104,14 @@
                 </div>
             </div>
 
-        
+            <!-- Features Grid -->
             <div class="py-20 text-center">
                 <h2 class="font-heading text-4xl font-black mb-2">Rail-Sarthi Hi Kyun?</h2>
                 <p class="text-slate-500 font-medium mb-12">Special features crafted for Indian travellers</p>
                 <div id="featuresGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left"></div>
             </div>
 
-     
+            <!-- App Promo -->
             <div class="app-promo-box rounded-[3rem] shadow-2xl relative overflow-hidden py-16 px-8 lg:px-16 mb-16 flex flex-col md:flex-row items-center gap-12">
                 <div class="w-full md:w-1/2 text-white z-10 text-center md:text-left">
                     <h2 class="font-heading text-4xl lg:text-5xl font-black mb-6">Mobile App Download Karein</h2>
@@ -139,7 +140,7 @@
                 </div>
             </div>
 
-    
+            <!-- FAQs -->
             <div class="max-w-3xl mx-auto mb-10">
                 <div class="text-center mb-12">
                     <h2 class="font-heading text-4xl font-black mb-2">Frequently Asked Questions (FAQs)</h2>
@@ -149,18 +150,18 @@
             </div>
         </section>
 
-
-     
-
+        <!-- ============================================================ -->
+        <!-- TAB 2: TRAIN TICKETS — Search → Results → Booking form       -->
+        <!-- ============================================================ -->
         <section id="tickets" class="tab-content py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-     
+            <!-- Page header -->
             <div class="mb-10">
                 <h2 class="font-heading text-4xl font-black">Train Tickets</h2>
                 <p class="text-slate-500 font-medium mt-1">Find trains, compare options, and book in seconds.</p>
             </div>
 
-       
+            <!-- ── TICKET SEARCH FORM ── -->
             <div id="ticketSearchSection">
                 <form id="ticketSearchForm" class="bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-glass border border-white/60 p-8 mb-10">
                     <h3 class="font-heading font-black text-xl text-slate-800 mb-6 flex items-center gap-2">
@@ -198,15 +199,16 @@
                     </button>
                 </form>
 
-           
+                <!-- ── TRAIN RESULTS ── -->
                 <div id="ticketResults">
-        
+                    <!-- Populated by JS -->
                 </div>
             </div>
 
+            <!-- ── PASSENGER BOOKING FORM (hidden until train selected) ── -->
             <div id="ticketBookingSection" class="hidden">
 
-          
+                <!-- Back button -->
                 <button type="button" onclick="showTicketResults()"
                     class="mb-6 text-ryblue-600 font-bold text-sm flex items-center gap-2 hover:text-ryblue-800 transition group">
                     <span class="w-8 h-8 rounded-full bg-ryblue-50 group-hover:bg-ryblue-100 flex items-center justify-center transition">
@@ -217,7 +219,7 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-         
+                    <!-- Selected train summary card -->
                     <div class="lg:col-span-2">
                         <div class="bg-white rounded-[2rem] shadow-card border border-slate-100 p-6 sticky top-28">
                             <div class="flex items-center gap-2 mb-5">
@@ -227,12 +229,12 @@
                                 <span class="font-heading font-black text-base text-ryblue-900">Selected Train</span>
                             </div>
                             <div id="selectedTrainSummary" class="space-y-4">
-                         
+                                <!-- Injected by JS -->
                             </div>
                         </div>
                     </div>
 
-             
+                    <!-- Passenger details form -->
                     <div class="lg:col-span-3">
                         <div class="bg-white rounded-[2rem] shadow-card border border-slate-100 p-8">
                             <h3 class="font-heading font-black text-2xl text-slate-800 mb-2">Passenger Details</h3>
@@ -255,7 +257,7 @@
                                     </div>
                                 </div>
 
-                             
+                                <!-- Price summary -->
                                 <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
                                     <div class="flex justify-between items-center text-sm font-medium text-slate-500 mb-2">
                                         <span>Base Fare</span>
@@ -289,9 +291,9 @@
             </div>
         </section>
 
- 
-   
-
+        <!-- ============================================================ -->
+        <!-- TAB 3: MY BOOKINGS                                           -->
+        <!-- ============================================================ -->
         <section id="bookings" class="tab-content py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center mb-10">
                 <h2 class="font-heading text-4xl font-black">Aapki Bookings</h2>
@@ -312,10 +314,13 @@
             </div>
         </section>
 
+        <!-- ============================================================ -->
+        <!-- TAB 4: ADMIN                                                 -->
+        <!-- ============================================================ -->
         <section id="admin" class="tab-content py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="font-heading text-4xl font-black mb-10">Admin Dashboard</h2>
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-10">
-            
+                <!-- Add Form -->
                 <div class="col-span-1 bg-white rounded-[2rem] shadow-card border border-slate-100 p-8 sticky top-28 h-fit">
                     <h3 class="text-2xl font-heading font-black mb-6 flex items-center gap-3">
                         <div class="w-10 h-10 rounded-xl bg-ryblue-50 flex items-center justify-center text-ryblue-600"><i class="ph-bold ph-plus"></i></div>
@@ -366,6 +371,7 @@
                     </form>
                 </div>
 
+                <!-- Train List -->
                 <div class="col-span-1 xl:col-span-2 bg-white rounded-[2rem] shadow-card border border-slate-100 overflow-hidden">
                     <div class="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center">
                         <h3 class="text-2xl font-heading font-black">Active Trains</h3>
@@ -387,7 +393,7 @@
                 </div>
             </div>
 
-     
+            <!-- Modal -->
             <div id="trainModal" class="fixed inset-0 bg-slate-900/40 hidden z-50 flex items-center justify-center backdrop-blur-sm">
                 <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-md p-2 m-4">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center">
@@ -402,7 +408,7 @@
         </section>
     </main>
 
-
+    <!-- Footer -->
     <footer class="bg-white border-t border-slate-100 pt-20 pb-10 mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div id="footerLinks" class="grid grid-cols-2 lg:grid-cols-5 gap-10 mb-16"></div>
@@ -415,7 +421,7 @@
 
     <script src="index.js"></script>
     
-  
+    <!-- CHANGED: Modal logic for AI Guide. Made wider: max-w-5xl, added better structure. -->
     <div id="ticketModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
         <div class="bg-white w-full max-w-5xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300 flex flex-col max-h-[90vh]">
             <div class="relative p-8 bg-gradient-to-br from-ryblue-600 to-ryblue-900 text-white shrink-0">
@@ -423,13 +429,13 @@
                     <i class="ph-bold ph-x text-xl"></i>
                 </button>
                 <div id="modalTicketHeader">
-                   
+                    <!-- Populated via JS -->
                 </div>
             </div>
 
             <div id="modalBody" class="overflow-y-auto p-8 custom-scrollbar bg-slate-50/50 flex-1">
                 <div id="aiDiscoveryContainer">
-              
+                    <!-- Populated via JS -->
                 </div>
             </div>
             

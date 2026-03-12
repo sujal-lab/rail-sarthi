@@ -33,7 +33,9 @@ function writeData(filePath, data) {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
-
+// ===============================
+// 1️⃣ GET /bookings
+// ===============================
 router.get("/", (req, res) => {
     try {
         const bookings = readData(bookingsFile);
@@ -44,7 +46,12 @@ router.get("/", (req, res) => {
     }
 });
 
-
+// ===============================
+// 2️⃣ POST /bookings
+// ===============================
+// ===============================
+// 2️⃣ POST /bookings (Updated)
+// ===============================
 router.post("/", validateBooking, (req, res) => {
     try {
         const { trainId, passengerName, age, date } = req.body;
@@ -58,7 +65,7 @@ router.post("/", validateBooking, (req, res) => {
             id: "BKG" + Date.now().toString(),
             trainId,
             trainName: train.trainName,
-            destination: train.destination,
+            destination: train.destination, // <--- SAVED FOR AI DISCOVERY
             passengerName,
             age: Number(age),
             date
@@ -71,7 +78,9 @@ router.post("/", validateBooking, (req, res) => {
         res.status(500).json({ message: "Error processing booking" });
     }
 });
-
+// ===============================
+// 3️⃣ DELETE /bookings/:id
+// ===============================
 router.delete("/:id", validateId, (req, res) => {
     try {
 

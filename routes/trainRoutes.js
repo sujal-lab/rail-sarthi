@@ -7,27 +7,29 @@ const validateId = require('../middleware/validateId');
 
 const router = express.Router();
 
-
+// Path of trains.json file
 const filePath = path.join(__dirname, '../data/trains.json');
 
-
+// Ensure file exists
 if (!fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, JSON.stringify([], null, 2));
 }
 
-
+// Function to read trains
 function readTrains() {
     const data = fs.readFileSync(filePath, "utf-8");
     return JSON.parse(data);
 }
 
-
+// Function to write trains
 function writeTrains(data) {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
 
-
+// ============================
+// GET /trains
+// ============================
 router.get("/", (req, res) => {
     try {
         const trains = readTrains();
@@ -39,6 +41,9 @@ router.get("/", (req, res) => {
 });
 
 
+// ============================
+// GET /trains/:id
+// ============================
 router.get("/:id", validateId, (req, res) => {
     try {
         const trains = readTrains();
@@ -56,6 +61,9 @@ router.get("/:id", validateId, (req, res) => {
     }
 });
 
+// ============================
+// POST /trains (Updated)
+// ============================
 router.post("/", validateTrain, (req, res) => {
     try {
         const { 
@@ -78,8 +86,8 @@ router.post("/", validateTrain, (req, res) => {
             destination,
             dep,
             arr,
-            startDate, 
-            endDate,   
+            startDate, // <--- SAVE TO JSON
+            endDate,   // <--- SAVE TO JSON
             totalSeats,
             availableSeats: totalSeats,
             price
@@ -93,7 +101,9 @@ router.post("/", validateTrain, (req, res) => {
     }
 });
 
-
+// ============================
+// DELETE /trains/:id
+// ============================
 router.delete("/:id", validateId, (req, res) => {
     try {
 
