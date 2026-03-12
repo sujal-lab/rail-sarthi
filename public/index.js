@@ -831,6 +831,239 @@ window.cancelBooking = async id => {
     }
 };
 
+/* ============================================================ */
+/* ROUTE CHAT LOGIC                                             */
+/* ============================================================ */
+
+let chatState = {
+    isOpen: false,
+    currentRoom: null, // "trainId_date"
+    currentJourney: null,
+    pollInterval: null,
+    userName: "Traveler " + Math.floor(Math.random() * 1000)
+};
+
+window.toggleChatWindow = async () => {
+    const w = $('chatWindow');
+    chatState.isOpen = !chatState.isOpen;
+    
+    if (chatState.isOpen) {
+        w.classList.remove('hidden');
+        w.classList.add('flex');
+        
+        // Always open to journey selection first if no room is selected
+        if (!chatState.currentRoom) {
+            showChatJourneyList();
+        }
+    } else {
+        w.classList.remove('flex');
+        w.classList.add('hidden');
+        stopChatPolling();
+    }
+};
+
+window.showChatJourneyList = async () => {
+    stopChatPolling();
+    chatState.currentRoom = null;
+    chatState.currentJourney = null;
+    
+    $('chatSelectJourneyView').classList.remove('hidden');
+    $('chatSelectJourneyView').classList.add('flex');
+    $('chatRoomView').classList.add('hidden');
+    $('chatRoomView').classList.remove('flex');
+    
+    $('chatHeaderTitle').textContent = "Route Chat";
+    $('chatHeaderSubtitle').textContent = "Connect with fellow travelers";
+    
+    $('chatJourneyList').innerHTML = `<div class="text-xs text-slate-400 text-center py-4">Loading your journeys...</div>`;
+    
+    const bookings = await apiCall('/bookings') || [];
+    
+    if (bookings.length === 0) {
+        $('chatJourneyList').innerHTML = `
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                <i class="ph-fill ph-ticket text-4xl text-slate-300 mb-2"></i>
+                <p class="text-sm font-bold text-slate-600">No active bookings</p>
+                <p class="text-xs text-slate-400 mt-1">Book a ticket to join a route chat.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    $('chatJourneyList').innerHTML = bookings.map(b => `
+        <button onclick="joinChatRoom('${b.trainId}', '${b.date}', '${b.trainName}', '${b.destination}')" class="w-full bg-white p-4 rounded-2xl border border-slate-100 hover:border-ryblue-200 hover:shadow-md transition-all text-left flex items-center gap-4 group">
+            <div class="w-10 h-10 rounded-xl bg-ryblue-50 flex items-center justify-center shrink-0 group-hover:bg-ryblue-600 group-hover:text-white transition-colors">
+                <i class="ph-bold ph-train text-lg text-ryblue-600 group-hover:text-white"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h5 class="font-bold text-sm text-slate-800 truncate">${b.trainName || 'Train'}</h5>
+                <p class="text-xs text-slate-500 truncate mt-0.5">To ${b.destination || 'Destination'} • ${b.date}</p>
+            </div>
+            <i class="ph-bold ph-caret-right text-slate-300 group-hover:text-ryblue-600"></i>
+        </button>
+    `).join('');
+};
+
+window.joinChatRoom = (trainId, date, trainName, dest) => {
+    chatState.currentRoom = `${trainId}_${date}`;
+    chatState.currentJourney = { trainName, dest, date };
+    
+    $('chatSelectJourneyView').classList.add('hidden');
+    $('chatSelectJourneyView').classList.remove('flex');
+    $('chatRoomView').classList.remove('hidden');
+    $('chatRoomView').classList.add('flex');
+    
+    $('chatHeaderTitle').textContent = trainName || 'Train Chat';
+    $('chatHeaderSubtitle').textContent = `To ${dest} on ${date}`;
+    
+    fetchChats();
+    startChatPolling();
+};
+
+const fetchChats = async () => {
+    if (!chatState.currentRoom || !chatState.isOpen) return;
+    
+    const chats = await apiCall(`/chats/${chatState.currentRoom}`) || [];
+    renderChats(chats);
+};
+
+const renderChats = (chats) => {
+    const area = $('chatMessagesArea');
+    
+    if (chats.length === 0) {
+        area.innerHTML = `
+            <div class="h-full flex flex-col items-center justify-center text-center opacity-50 pb-10">
+                <i class="ph-fill ph-chat-teardrop-dots text-4xl mb-2 text-slate-400"></i>
+                <p class="text-xs font-bold text-slate-500">No messages yet.</p>
+                <p class="text-[10px] uppercase tracking-widest text-slate-400 mt-1">Start the conversation!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const isAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 50;
+
+    area.innerHTML = chats.map(c => {
+        const time = new Date(c.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const isMe = c.senderName === chatState.userName;
+        
+        if (c.type === 'message') {
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-4 animate-in fade-in slide-in-from-bottom-2">
+                    <span class="text-[10px] font-bold text-slate-400 mb-1 ml-1 mr-1">${isMe ? 'You' : c.senderName} • ${time}</span>
+                    <div class="max-w-[85%] ${isMe ? 'bg-ryblue-600 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm' : 'bg-white text-slate-700 border border-slate-100 rounded-t-2xl rounded-br-2xl rounded-bl-sm'} p-3 text-sm shadow-sm relative group">
+                        ${c.text}
+                    </div>
+                </div>
+            `;
+        } else if (c.type === 'poll') {
+            const hasVoted = false; // Note: Local simple implementation without specific user tracking for votes
+            
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-4 w-full animate-in fade-in zoom-in-95">
+                    <span class="text-[10px] font-bold text-slate-400 mb-1 ml-1 mr-1">${isMe ? 'You' : c.senderName} created a poll • ${time}</span>
+                    <div class="w-[90%] bg-white border divide-y divide-slate-50 border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="p-4 bg-slate-50/50 flex gap-3">
+                            <i class="ph-fill ph-chart-bar text-xl text-ryblue-600 shrink-0"></i>
+                            <h6 class="font-bold text-slate-800 text-sm leading-tight">${c.question}</h6>
+                        </div>
+                        <div class="p-3 space-y-2 relative">
+                            ${c.options.map(opt => {
+                                const percent = c.totalVotes > 0 ? Math.round((opt.votes / c.totalVotes) * 100) : 0;
+                                return `
+                                    <button onclick="votePoll('${c.id}', '${opt.id}')" class="w-full relative bg-slate-50 hover:bg-ryblue-50 border border-slate-100 p-2 rounded-xl text-left overflow-hidden group transition-colors">
+                                        <div class="absolute left-0 top-0 bottom-0 bg-ryblue-100/50 transition-all duration-500 ease-out" style="width: ${percent}%"></div>
+                                        <div class="relative z-10 flex justify-between items-center text-xs font-medium">
+                                            <span class="text-slate-700 group-hover:text-ryblue-900">${opt.text}</span>
+                                            <span class="text-slate-400 font-bold">${opt.votes} <span class="text-[9px] font-normal">(${percent}%)</span></span>
+                                        </div>
+                                    </button>
+                                `;
+                            }).join('')}
+                            <div class="text-[10px] text-center text-slate-400 mt-2 font-medium">${c.totalVotes} total votes</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        return '';
+    }).join('');
+    
+    // Auto scroll to bottom
+    if (isAtBottom) {
+        area.scrollTop = area.scrollHeight;
+    }
+};
+
+const startChatPolling = () => {
+    stopChatPolling();
+    chatState.pollInterval = setInterval(fetchChats, 3000);
+};
+
+const stopChatPolling = () => {
+    if (chatState.pollInterval) clearInterval(chatState.pollInterval);
+};
+
+window.submitMessage = async () => {
+    const input = $('chatMessageInput');
+    const text = input.value.trim();
+    
+    if (!text || !chatState.currentRoom) return;
+    
+    input.value = ''; // Local clear
+    
+    await apiCall(`/chats/${chatState.currentRoom}/message`, 'POST', {
+        senderName: chatState.userName,
+        text
+    });
+    
+    fetchChats();
+};
+
+window.toggleCreatePoll = () => {
+    const section = $('createPollSection');
+    if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden');
+        // Scroll to bottom so it's fully visible
+        setTimeout(() => {
+            const area = $('chatMessagesArea');
+            area.scrollTop = area.scrollHeight;
+        }, 50);
+    } else {
+        section.classList.add('hidden');
+    }
+};
+
+window.submitPoll = async () => {
+    const question = $('pollQuestion').value.trim();
+    const inputs = document.querySelectorAll('.poll-option-input');
+    const options = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+    
+    if (!question || options.length < 2) {
+        showToast('Please enter a question and at least 2 options.', 'error');
+        return;
+    }
+    
+    await apiCall(`/chats/${chatState.currentRoom}/poll`, 'POST', {
+        senderName: chatState.userName,
+        question,
+        options
+    });
+    
+    $('pollQuestion').value = '';
+    inputs.forEach(i => i.value = '');
+    toggleCreatePoll();
+    fetchChats();
+};
+
+window.votePoll = async (pollId, optionId) => {
+    // In a real app we'd prevent double voting locally, but for ease here we allow it or rely on server tracking.
+    await apiCall(`/chats/${chatState.currentRoom}/vote/${pollId}`, 'POST', {
+        optionId
+    });
+    fetchChats();
+};
+
 /* INIT */
 window.onload = () => {
     const today = new Date().toISOString().split('T')[0];
