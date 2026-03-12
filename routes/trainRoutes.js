@@ -95,9 +95,9 @@ router.post("/", validateTrain, (req, res) => {
     }
 });
 
-// ============================
+
 // PUT /trains/:id
-// ============================
+
 router.put("/:id", validateTrain, validateId, (req, res) => {
     try {
         const { 
@@ -137,38 +137,6 @@ router.put("/:id", validateTrain, validateId, (req, res) => {
     } catch (error) {
         console.error("Update Error:", error);
         res.status(500).json({ message: "Error updating train" });
-    }
-});
-
-// ============================
-// PATCH /trains/:id
-// ============================
-router.patch("/:id", validateId, (req, res) => {
-    try {
-        const trains = readTrains();
-        const trainIndex = trains.findIndex(t => t.id === req.params.id);
-
-        if (trainIndex === -1) {
-            return res.status(404).json({ message: "Train not found" });
-        }
-
-        const { trainNo } = req.body;
-        if (trainNo && trains.some(t => t.trainNo === trainNo && t.id !== req.params.id)) {
-            return res.status(400).json({ message: "Train number already exists for another train" });
-        }
-
-        const updatedTrain = {
-            ...trains[trainIndex],
-            ...req.body,
-            id: trains[trainIndex].id // protect ID
-        };
-
-        trains[trainIndex] = updatedTrain;
-        writeTrains(trains);
-        res.status(200).json(updatedTrain);
-    } catch (error) {
-        console.error("Patch Error:", error);
-        res.status(500).json({ message: "Error patching train" });
     }
 });
 
