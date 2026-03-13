@@ -1,5 +1,4 @@
-const express = require("express");
-// const cors = require("cors");   
+const express = require("express");  
 
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -10,12 +9,9 @@ const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
-// app.use(cors());
 
-// Parse JSON bodies
 app.use(express.json());
 
-// Application-level middleware
 app.use(logger);
 
 // Route mounting
