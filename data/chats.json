@@ -17,15 +17,15 @@
       {
         "id": "0",
         "text": "yes",
-        "votes": 1
+        "votes": 6
       },
       {
         "id": "1",
         "text": "no",
-        "votes": 0
+        "votes": 10
       }
     ],
-    "totalVotes": 1,
+    "totalVotes": 16,
     "timestamp": "2026-03-12T10:21:55.970Z"
   },
   {
