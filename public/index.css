@@ -33,78 +33,18 @@ body {
 @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 @keyframes fadeOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
 
-
 .app-promo-box { background: linear-gradient(105deg, #1b2a5a 0%, #3a1c3d 50%, #d63447 100%); }
 .glass-nav { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
 /* ── Custom Scrollbars ── */
-#trainListContainer::-webkit-scrollbar, 
-.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar,
+#chatMessagesArea::-webkit-scrollbar { width: 6px; }
 
-#trainListContainer::-webkit-scrollbar-track, 
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-track,
+#chatMessagesArea::-webkit-scrollbar-track { background: transparent; }
 
-#trainListContainer::-webkit-scrollbar-thumb, 
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+.custom-scrollbar::-webkit-scrollbar-thumb,
+#chatMessagesArea::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
 
-#trainListContainer::-webkit-scrollbar-thumb:hover, 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-/* ── Discovery Modal & AI Guide ── */
-.modal-backdrop {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
-}
-
-.modal-animate {
-    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes modalSlideUp {
-    from { opacity: 0; transform: scale(0.95) translateY(40px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-/* AI Saffron Insight Card */
-.ai-insight-box {
-    background: linear-gradient(135deg, #fffcf9 0%, #fff7ed 100%);
-    border-left: 4px solid #f97316;
-    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.08);
-    animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; } to { opacity: 1; }
-}
-
-.ai-content-text {
-    line-height: 1.8;
-    color: #334155;
-    font-size: 0.95rem;
-}
-
-/* ── Admin Date/Time Styling ── */
-input[type="date"], input[type="time"] {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    color: #475569;
-}
-
-::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    opacity: 0.4;
-    filter: grayscale(1);
-    transition: opacity 0.2s;
-}
-
-::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
-}
-
-/* Timeline Polish (for the Ticket display) */
-.ticket-dashed-line {
-    background-image: linear-gradient(to right, #cbd5e1 50%, transparent 50%);
-    background-size: 8px 1px;
-    background-repeat: repeat-x;
-}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+#chatMessagesArea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

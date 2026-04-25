@@ -1,4 +1,5 @@
 const express = require("express");  
+const path = require("path");
 
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -6,20 +7,33 @@ const errorHandler = require("./middleware/errorHandler");
 const trainRoutes = require("./routes/trainRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const viewRoutes = require("./routes/viewRoutes");
 
 const app = express();
 
+// EJS setup
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(logger);
 
-// Route mounting
+// API route mounting (unchanged)
 app.use("/trains", trainRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/chats", chatRoutes);
 
-// Serve static files
+// View routes (EJS pages)
+app.use("/view", viewRoutes);
+
+// Root redirect to home page
+app.get("/", (req, res) => {
+    res.redirect("/view/home");
+});
+
+// Serve static files (CSS, any remaining JS)
 app.use(express.static("public"));
 
 // 404 handler
