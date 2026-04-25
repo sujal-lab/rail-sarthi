@@ -8,9 +8,11 @@ const trainRoutes = require("./routes/trainRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const viewRoutes = require("./routes/viewRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
+app.use("/auth", authRoutes);
 // EJS setup
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));

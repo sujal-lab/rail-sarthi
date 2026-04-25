@@ -1,6 +1,9 @@
-// Define authentication routes (/auth/login, /auth/signup)
-// Assigned to: Member 2
+const express = require("express");
+const router = express.Router();
+const login = require("../controllers/auth/login");
+const signup = require("../controllers/auth/signup");
 
-module.exports = () => {
-    throw new Error("Not implemented yet");
-};
+router.post("/signup", signup);
+router.post("/login", login);
+
+module.exports = router;
