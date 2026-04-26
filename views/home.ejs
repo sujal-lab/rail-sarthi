@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body class="text-slate-800 selection:bg-ryred-500 selection:text-white">
+
+    <%- include('partials/navbar', { currentPage, user }) %>
+    <%- include('partials/toast') %>
+
+    <main>
+        <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="flex justify-end mb-8">
+                <div class="nav-auth bg-white/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6">
+                    <% if (user) { %>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-ryblue-500 flex items-center justify-center text-white font-bold">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                            <span class="font-bold text-slate-700">Welcome, <%= user.name %>!</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <a href="/view/bookings" class="text-sm font-bold text-ryblue-600 hover:text-ryblue-700">My Bookings</a>
+                            <a href="/auth/logout" class="text-sm font-bold text-ryred-500 hover:text-ryred-600">Logout</a>
+                        </div>
+                    <% } else { %>
+                        <a href="/auth/login" class="text-sm font-bold text-slate-600 hover:text-ryblue-600 transition-colors">Login</a>
+                        <a href="/auth/signup" class="bg-ryblue-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-ryblue-700 transition-all shadow-md">Sign Up</a>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-12 items-center justify-between">
+
+                <div class="w-full lg:w-5/12 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ryblue-50 text-ryblue-600 font-bold text-sm font-heading mb-6 border border-ryblue-100">
+                        <span class="w-2 h-2 rounded-full bg-ryred-500 animate-pulse"></span> Live Train Tracking
+                    </div>
+                    <h1 class="font-heading text-5xl lg:text-[3.5rem] font-black leading-[1.1] text-slate-900 mb-6 tracking-tight">
+                        Ticket Book Karna<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-ryblue-600 to-ryred-500">Ab Bada Aasaan!</span>
+                    </h1>
+                    <p class="text-slate-500 text-lg font-medium mb-8">
+                        <span class="text-slate-700 font-semibold">Safar aapka, saarthi hum.</span>
+                    </p>
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-slate-600 font-medium">
+                        <div class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ryred-500 text-xl"></i> Zero Waitlist</div>
+                        <div class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ryred-500 text-xl"></i> Instant Refunds</div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-6/12 relative">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-ryblue-100 to-ryred-100 opacity-50 blur-2xl rounded-[3rem] -z-10"></div>
+                    <div class="bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-glass border border-white/60 p-8 lg:p-10 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-ryblue-50 rounded-bl-full -z-10"></div>
+
+                        <h2 class="text-3xl font-heading font-black text-slate-800 mb-2">Apni Yatra Plan Karein</h2>
+                        <p class="text-slate-500 font-medium text-sm mb-8">Search trains instantly and book in under a minute.</p>
+
+                        <form action="/view/tickets" method="GET" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold font-heading text-ryblue-600 uppercase tracking-widest mb-2">From</label>
+                                    <div class="relative">
+                                        <i class="ph-fill ph-map-pin absolute left-4 top-4 text-slate-400 text-xl"></i>
+                                        <input type="text" name="from" required placeholder="e.g. Delhi"
+                                            class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-700 font-bold focus:border-ryblue-500 outline-none transition-colors">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold font-heading text-ryblue-600 uppercase tracking-widest mb-2">To</label>
+                                    <div class="relative">
+                                        <i class="ph-fill ph-navigation-arrow absolute left-4 top-4 text-slate-400 text-xl"></i>
+                                        <input type="text" name="to" required placeholder="e.g. Mumbai"
+                                            class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-700 font-bold focus:border-ryblue-500 outline-none transition-colors">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold font-heading text-ryblue-600 uppercase tracking-widest mb-2">Journey Date</label>
+                                <div class="relative">
+                                    <i class="ph-fill ph-calendar-blank absolute left-4 top-4 text-slate-400 text-xl"></i>
+                                    <input type="date" name="date" required
+                                        class="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl text-slate-700 font-bold focus:border-ryblue-500 outline-none transition-colors">
+                                </div>
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-ryred-500 hover:bg-ryred-600 text-white font-heading font-bold text-lg py-4 rounded-2xl transition-all shadow-[0_8px_20px_-6px_rgba(214,52,71,0.5)] hover:-translate-y-1 mt-4 flex items-center justify-center gap-2">
+                                Search Trains <i class="ph-bold ph-magnifying-glass"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="py-20 text-center">
+                <h2 class="font-heading text-4xl font-black mb-2">Rail-Sarthi Hi Kyun?</h2>
+                <p class="text-slate-500 font-medium mb-12">Special features crafted for Indian travellers</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
+                    <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-float transition-all">
+                        <div class="w-16 h-16 rounded-2xl bg-ryblue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <img src="https://img.icons8.com/color/96/bank-cards.png" class="w-10 h-10">
+                        </div>
+                        <h3 class="font-heading font-bold text-xl mb-2">Safe Payments</h3>
+                        <p class="text-sm text-slate-500">100% secure booking experience.</p>
+                    </div>
+                    <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-float transition-all lg:mt-6">
+                        <div class="w-16 h-16 rounded-2xl bg-ryred-50 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <img src="https://img.icons8.com/color/96/customer-support.png" class="w-10 h-10">
+                        </div>
+                        <h3 class="font-heading font-bold text-xl mb-2">Har Pal Support</h3>
+                        <p class="text-sm text-slate-500">Live help 7 days a week.</p>
+                    </div>
+                    <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-float transition-all">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <img src="https://img.icons8.com/color/96/money-bag.png" class="w-10 h-10">
+                        </div>
+                        <h3 class="font-heading font-bold text-xl mb-2">Turant Refunds</h3>
+                        <p class="text-sm text-slate-500">Get money back instantly.</p>
+                    </div>
+                    <div class="group p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm hover:shadow-float transition-all lg:mt-6">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-50 flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                            <img src="https://img.icons8.com/color/96/train.png" class="w-10 h-10">
+                        </div>
+                        <h3 class="font-heading font-bold text-xl mb-2">Live Tracking</h3>
+                        <p class="text-sm text-slate-500">Track your train's live location.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-promo-box rounded-[3rem] shadow-2xl relative overflow-hidden py-16 px-8 lg:px-16 mb-16 flex flex-col md:flex-row items-center gap-12">
+                <div class="w-full md:w-1/2 text-white z-10 text-center md:text-left">
+                    <h2 class="font-heading text-4xl lg:text-5xl font-black mb-6">Mobile App Download Karein</h2>
+                    <ul class="space-y-4 mb-10 font-semibold text-white/90 inline-block text-left">
+                        <li class="flex items-center gap-3"><i class="ph-bold ph-check-circle text-ryred-400 text-xl"></i> AI-Based PNR predictions</li>
+                        <li class="flex items-center gap-3"><i class="ph-bold ph-check-circle text-ryred-400 text-xl"></i> Reliable live train tracking</li>
+                    </ul>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                        <button class="bg-white/10 border border-white/20 backdrop-blur-md text-white px-6 py-3 rounded-2xl flex items-center gap-3">
+                            <i class="ph-fill ph-apple-logo text-3xl"></i>
+                            <div class="text-left text-lg font-heading font-bold leading-none">App Store</div>
+                        </button>
+                        <button class="bg-white text-ryblue-900 px-6 py-3 rounded-2xl flex items-center gap-3">
+                            <i class="ph-fill ph-google-play-logo text-3xl text-ryblue-600"></i>
+                            <div class="text-left text-lg font-heading font-black leading-none">Google Play</div>
+                        </button>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 relative h-[400px] flex justify-center items-center hidden lg:flex">
+                    <div class="absolute left-0 lg:left-8 top-12 w-48 h-[320px] bg-white rounded-[2rem] transform -rotate-12 scale-90 border-[6px] border-ryblue-50 opacity-80"><div class="h-10 bg-ryblue-600 rounded-t-[1.5rem]"></div><div class="p-4 space-y-3"><div class="h-12 bg-slate-100 rounded-xl"></div><div class="h-20 bg-slate-100 rounded-xl"></div></div></div>
+                    <div class="absolute right-0 lg:right-8 top-12 w-48 h-[320px] bg-white rounded-[2rem] transform rotate-12 scale-90 border-[6px] border-ryblue-50 opacity-80"><div class="h-10 bg-emerald-600 rounded-t-[1.5rem]"></div><div class="p-4 grid grid-cols-2 gap-2"><div class="h-16 bg-slate-100 rounded-xl"></div><div class="h-16 bg-slate-100 rounded-xl"></div></div></div>
+                    <div class="absolute z-10 w-[240px] h-[440px] bg-white rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.4)] border-[8px] border-white flex flex-col hover:-translate-y-4 transition-transform duration-500">
+                        <div class="h-14 flex justify-between items-center px-5 border-b border-slate-100"><div class="w-6 h-1.5 bg-slate-200 rounded-full"></div><span class="font-heading font-black text-sm text-ryblue-600">RAIL-SARTHI</span><div class="w-6 h-6 rounded-full bg-slate-100"></div></div>
+                        <div class="flex-1 bg-slate-50 p-4"><div class="h-8 bg-ryblue-100 rounded-lg mb-4 w-3/4"></div><div class="bg-white p-3 rounded-2xl border border-slate-100 mb-4"><div class="h-3 w-1/2 bg-slate-200 rounded mb-2"></div><div class="h-10 bg-slate-50 border border-slate-100 rounded-xl mb-2"></div><div class="h-10 bg-ryred-500 rounded-xl mt-3"></div></div><div class="h-20 bg-gradient-to-r from-ryblue-500 to-ryblue-700 rounded-2xl"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto mb-10">
+                <div class="text-center mb-12">
+                    <h2 class="font-heading text-4xl font-black mb-2">Frequently Asked Questions (FAQs)</h2>
+                    <p class="text-slate-500 font-medium">Sawaal Aapke, Jawaab Humare</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-white rounded-2xl p-6 cursor-pointer border-2 border-transparent hover:border-ryblue-100 shadow-sm transition"
+                         onclick="this.lastElementChild.classList.toggle('hidden');this.querySelector('i').classList.toggle('ph-minus')">
+                        <div class="flex justify-between items-center font-heading font-bold text-lg">
+                            Is Rail-Sarthi free to use?
+                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-ryblue-600 shrink-0">
+                                <i class="ph-bold ph-plus"></i>
+                            </div>
+                        </div>
+                        <div class="text-slate-600 mt-4 text-sm hidden font-medium border-t border-slate-100 pt-4">Haan ji! Browsing is free. Fees apply only on booking.</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 cursor-pointer border-2 border-transparent hover:border-ryblue-100 shadow-sm transition"
+                         onclick="this.lastElementChild.classList.toggle('hidden');this.querySelector('i').classList.toggle('ph-minus')">
+                        <div class="flex justify-between items-center font-heading font-bold text-lg">
+                            Mera data kitna safe hai?
+                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-ryblue-600 shrink-0">
+                                <i class="ph-bold ph-plus"></i>
+                            </div>
+                        </div>
+                        <div class="text-slate-600 mt-4 text-sm hidden font-medium border-t border-slate-100 pt-4">We use bank-level encryption. Details are strictly confidential.</div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 cursor-pointer border-2 border-transparent hover:border-ryblue-100 shadow-sm transition"
+                         onclick="this.lastElementChild.classList.toggle('hidden');this.querySelector('i').classList.toggle('ph-minus')">
+                        <div class="flex justify-between items-center font-heading font-bold text-lg">
+                            Can I cancel my ticket online?
+                            <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-ryblue-600 shrink-0">
+                                <i class="ph-bold ph-plus"></i>
+                            </div>
+                        </div>
+                        <div class="text-slate-600 mt-4 text-sm hidden font-medium border-t border-slate-100 pt-4">Bilkul! Cancel easily via 'My Bookings' for auto-refunds.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include('partials/footer') %>
+    <%- include('partials/chat') %>
+
+    <script>
+    // Set date defaults
+    window.onload = () => {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.querySelector('input[name="date"]');
+        if (dateInput) {
+            dateInput.min = today;
+            dateInput.value = today;
+        }
+    };
+    </script>
+
+</body>
+</html>

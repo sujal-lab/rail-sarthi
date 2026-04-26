@@ -1,0 +1,16 @@
+<nav class="glass-nav border-b border-white/50 shadow-sm sticky top-0 z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
+        <a href="/view/home" class="flex items-center gap-3 cursor-pointer group">
+            <svg width="60" height="40" viewBox="0 0 100 60" fill="none" class="group-hover:scale-105 transition-transform"><path d="M50 4L58 14L50 24L42 14L50 4Z" stroke="#173873" stroke-width="2.5" fill="white"/><line x1="50" y1="24" x2="50" y2="28" stroke="#173873" stroke-width="2.5"/><path d="M10 28H90L95 45V52H5V45L10 28Z" fill="#80c6ff" stroke="#173873" stroke-width="2.5" stroke-linejoin="round"/><line x1="15" y1="38" x2="85" y2="38" stroke="#173873" stroke-width="1.5" opacity="0.3"/><rect x="18" y="32" width="12" height="10" rx="1" fill="#eef2f9" stroke="#173873" stroke-width="1.5"/><rect x="70" y="32" width="12" height="10" rx="1" fill="#eef2f9" stroke="#173873" stroke-width="1.5"/><rect x="42" y="32" width="7" height="16" fill="#eef2f9" stroke="#173873" stroke-width="1.5"/><rect x="51" y="32" width="7" height="16" fill="#eef2f9" stroke="#173873" stroke-width="1.5"/><circle cx="12" cy="48" r="1.5" fill="#173873"/><circle cx="88" cy="48" r="1.5" fill="#173873"/><path d="M25 52V55C25 56.5 22 56.5 22 55V52" stroke="#173873" stroke-width="2" fill="#173873"/><path d="M75 52V55C75 56.5 78 56.5 78 55V52" stroke="#173873" stroke-width="2" fill="#173873"/><line x1="5" y1="58" x2="95" y2="58" stroke="#173873" stroke-width="2"/></svg>
+            <span class="font-heading font-black text-[22px] text-slate-800 leading-none">RAIL सारथी</span>
+        </a>
+        <div class="hidden md:flex space-x-2 items-center">
+            <a href="/view/home" class="nav-btn <%= currentPage === 'home' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-500 transition px-4 py-2 rounded-full font-heading">Home & Book</a>
+            <a href="/view/tickets" class="nav-btn <%= currentPage === 'tickets' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading">
+                <i class="ph-bold ph-ticket mr-1"></i> Train Tickets
+            </a>
+            <a href="/view/bookings" class="nav-btn <%= currentPage === 'bookings' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading">My Bookings</a>
+            <a href="/view/admin" class="nav-btn <%= currentPage === 'admin' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading flex items-center gap-1.5"><i class="ph-bold ph-shield-check text-lg"></i> Admin</a>
+        </div>
+    </div>
+</nav>

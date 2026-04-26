@@ -1,0 +1,319 @@
+<!-- Route Chat Floating Button -->
+<button id="chatFabBtn" onclick="toggleChatWindow()" class="fixed bottom-6 right-6 w-16 h-16 bg-ryblue-600 hover:bg-ryblue-700 text-white rounded-full shadow-[0_8px_30px_-6px_rgba(23,56,115,0.6)] flex items-center justify-center transition-transform hover:scale-110 z-50 group">
+    <i class="ph-fill ph-chat-circle-dots text-3xl group-hover:animate-bounce"></i>
+</button>
+
+<!-- Route Chat Window -->
+<div id="chatWindow" class="fixed bottom-28 right-6 w-96 rounded-[2rem] bg-white shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] border border-slate-100 overflow-hidden z-[90] hidden flex-col h-[600px] max-h-[80vh] transition-all transform origin-bottom-right">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-ryblue-600 to-ryblue-800 text-white p-5 flex justify-between items-center shrink-0 shadow-md z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                <i class="ph-fill ph-users-three text-xl"></i>
+            </div>
+            <div>
+                <h3 class="font-heading font-black text-lg leading-tight" id="chatHeaderTitle">Route Chat</h3>
+                <p class="text-xs text-white/80 font-medium" id="chatHeaderSubtitle">Connect with fellow travelers</p>
+            </div>
+        </div>
+        <button onclick="toggleChatWindow()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+            <i class="ph-bold ph-x text-sm"></i>
+        </button>
+    </div>
+
+    <!-- View 1: Select Journey -->
+    <div id="chatSelectJourneyView" class="p-5 overflow-y-auto custom-scrollbar flex-1 bg-slate-50 flex flex-col">
+        <h4 class="font-heading font-bold text-slate-800 mb-2">Select a booked journey</h4>
+        <p class="text-xs text-slate-500 font-medium mb-4">Choose a booking to join its dedicated chat room and talk to others on the same train.</p>
+        <div id="chatJourneyList" class="space-y-3 flex-1">
+            <!-- Injected via JS -->
+        </div>
+    </div>
+
+    <!-- View 2: Chat Room -->
+    <div id="chatRoomView" class="hidden flex-col flex-1 relative bg-slate-50">
+        <button onclick="showChatJourneyList()" class="absolute -top-3 left-4 bg-white text-ryblue-600 shadow-sm border border-slate-100 rounded-full px-3 py-1 text-xs font-bold flex items-center gap-1 hover:bg-slate-50 z-20">
+            <i class="ph-bold ph-caret-left"></i> Back
+        </button>
+
+        <!-- Messages Area -->
+        <div id="chatMessagesArea" class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 pt-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-opacity-20">
+            <!-- Injected via JS -->
+        </div>
+
+        <!-- Create Poll UI (Hidden by default) -->
+        <div id="createPollSection" class="hidden border-t border-slate-200 bg-white p-4 shrink-0 transition-all">
+            <div class="flex justify-between items-center mb-3">
+                <h5 class="font-heading font-bold text-sm text-slate-800">Create a Poll</h5>
+                <button onclick="toggleCreatePoll()" class="text-slate-400 hover:text-ryred-500"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <input type="text" id="pollQuestion" placeholder="E.g., Anyone want to share a cab?" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium focus:border-ryblue-500 outline-none mb-3">
+            <div id="pollOptionsContainer" class="space-y-2 mb-3">
+                <input type="text" class="poll-option-input w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none" placeholder="Option 1">
+                <input type="text" class="poll-option-input w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm outline-none" placeholder="Option 2">
+            </div>
+            <button type="button" onclick="submitPoll()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm py-2.5 rounded-xl transition-colors">
+                Post Poll
+            </button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="bg-white border-t border-slate-100 p-4 shrink-0 flex gap-2 items-center">
+            <button onclick="toggleCreatePoll()" class="w-10 h-10 rounded-full bg-slate-50 text-slate-500 hover:text-ryblue-600 hover:bg-ryblue-50 flex items-center justify-center shrink-0 transition-colors" title="Create Poll">
+                <i class="ph-bold ph-chart-bar text-lg"></i>
+            </button>
+            <div class="flex-1 relative">
+                <input type="text" id="chatMessageInput" placeholder="Type a message..." 
+                    class="w-full bg-slate-50 border border-slate-200 rounded-full pl-4 pr-12 py-3 text-sm font-medium focus:border-ryblue-500 outline-none"
+                    onkeypress="if(event.key === 'Enter') submitMessage()">
+                <button onclick="submitMessage()" class="absolute right-1 top-1 w-10 h-10 rounded-full bg-ryblue-600 text-white flex items-center justify-center hover:bg-ryblue-700 transition">
+                    <i class="ph-bold ph-paper-plane-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ============================================================ */
+/* ROUTE CHAT LOGIC — Kept entirely client-side                  */
+/* ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+const apiCall = async (url, method = 'GET', body = null) => {
+    try {
+        const r = await fetch(url, {
+            method,
+            headers: body ? { 'Content-Type': 'application/json' } : {},
+            body: body ? JSON.stringify(body) : null
+        });
+        if (!r.ok) {
+            const errData = await r.json().catch(() => ({}));
+            return method === 'GET' ? false : (errData.message || `Server Error ${r.status}`);
+        }
+        return method === 'GET' ? await r.json() : true;
+    } catch (err) {
+        return method === 'GET' ? false : 'Server offline';
+    }
+};
+
+let chatState = {
+    isOpen: false,
+    currentRoom: null,
+    currentJourney: null,
+    pollInterval: null,
+    userName: "Traveler " + Math.floor(Math.random() * 1000)
+};
+
+window.toggleChatWindow = async () => {
+    const w = $('chatWindow');
+    chatState.isOpen = !chatState.isOpen;
+    
+    if (chatState.isOpen) {
+        w.classList.remove('hidden');
+        w.classList.add('flex');
+        if (!chatState.currentRoom) {
+            showChatJourneyList();
+        }
+    } else {
+        w.classList.remove('flex');
+        w.classList.add('hidden');
+        stopChatPolling();
+    }
+};
+
+window.showChatJourneyList = async () => {
+    stopChatPolling();
+    chatState.currentRoom = null;
+    chatState.currentJourney = null;
+    
+    $('chatSelectJourneyView').classList.remove('hidden');
+    $('chatSelectJourneyView').classList.add('flex');
+    $('chatRoomView').classList.add('hidden');
+    $('chatRoomView').classList.remove('flex');
+    
+    $('chatHeaderTitle').textContent = "Route Chat";
+    $('chatHeaderSubtitle').textContent = "Connect with fellow travelers";
+    
+    $('chatJourneyList').innerHTML = `<div class="text-xs text-slate-400 text-center py-4">Loading your journeys...</div>`;
+    
+    const bookings = await apiCall('/bookings') || [];
+    
+    if (bookings.length === 0) {
+        $('chatJourneyList').innerHTML = `
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 text-center shadow-sm">
+                <i class="ph-fill ph-ticket text-4xl text-slate-300 mb-2"></i>
+                <p class="text-sm font-bold text-slate-600">No active bookings</p>
+                <p class="text-xs text-slate-400 mt-1">Book a ticket to join a route chat.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    $('chatJourneyList').innerHTML = bookings.map(b => `
+        <button onclick="joinChatRoom('${b.trainId}', '${b.date}', '${b.trainName}', '${b.destination}')" class="w-full bg-white p-4 rounded-2xl border border-slate-100 hover:border-ryblue-200 hover:shadow-md transition-all text-left flex items-center gap-4 group">
+            <div class="w-10 h-10 rounded-xl bg-ryblue-50 flex items-center justify-center shrink-0 group-hover:bg-ryblue-600 group-hover:text-white transition-colors">
+                <i class="ph-bold ph-train text-lg text-ryblue-600 group-hover:text-white"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h5 class="font-bold text-sm text-slate-800 truncate">${b.trainName || 'Train'}</h5>
+                <p class="text-xs text-slate-500 truncate mt-0.5">To ${b.destination || 'Destination'} • ${b.date}</p>
+            </div>
+            <i class="ph-bold ph-caret-right text-slate-300 group-hover:text-ryblue-600"></i>
+        </button>
+    `).join('');
+};
+
+window.joinChatRoom = (trainId, date, trainName, dest) => {
+    chatState.currentRoom = `${trainId}_${date}`;
+    chatState.currentJourney = { trainName, dest, date };
+    
+    $('chatSelectJourneyView').classList.add('hidden');
+    $('chatSelectJourneyView').classList.remove('flex');
+    $('chatRoomView').classList.remove('hidden');
+    $('chatRoomView').classList.add('flex');
+    
+    $('chatHeaderTitle').textContent = trainName || 'Train Chat';
+    $('chatHeaderSubtitle').textContent = `To ${dest} on ${date}`;
+    
+    fetchChats();
+    startChatPolling();
+};
+
+const fetchChats = async () => {
+    if (!chatState.currentRoom || !chatState.isOpen) return;
+    const chats = await apiCall(`/chats/${chatState.currentRoom}`) || [];
+    renderChats(chats);
+};
+
+const renderChats = (chats) => {
+    const area = $('chatMessagesArea');
+    
+    if (chats.length === 0) {
+        area.innerHTML = `
+            <div class="h-full flex flex-col items-center justify-center text-center opacity-50 pb-10">
+                <i class="ph-fill ph-chat-teardrop-dots text-4xl mb-2 text-slate-400"></i>
+                <p class="text-xs font-bold text-slate-500">No messages yet.</p>
+                <p class="text-[10px] uppercase tracking-widest text-slate-400 mt-1">Start the conversation!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const isAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 50;
+
+    area.innerHTML = chats.map(c => {
+        const time = new Date(c.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const isMe = c.senderName === chatState.userName;
+        
+        if (c.type === 'message') {
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-4 animate-in fade-in slide-in-from-bottom-2">
+                    <span class="text-[10px] font-bold text-slate-400 mb-1 ml-1 mr-1">${isMe ? 'You' : c.senderName} • ${time}</span>
+                    <div class="max-w-[85%] ${isMe ? 'bg-ryblue-600 text-white rounded-t-2xl rounded-bl-2xl rounded-br-sm' : 'bg-white text-slate-700 border border-slate-100 rounded-t-2xl rounded-br-2xl rounded-bl-sm'} p-3 text-sm shadow-sm relative group">
+                        ${c.text}
+                    </div>
+                </div>
+            `;
+        } else if (c.type === 'poll') {
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-4 w-full animate-in fade-in zoom-in-95">
+                    <span class="text-[10px] font-bold text-slate-400 mb-1 ml-1 mr-1">${isMe ? 'You' : c.senderName} created a poll • ${time}</span>
+                    <div class="w-[90%] bg-white border divide-y divide-slate-50 border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                        <div class="p-4 bg-slate-50/50 flex gap-3">
+                            <i class="ph-fill ph-chart-bar text-xl text-ryblue-600 shrink-0"></i>
+                            <h6 class="font-bold text-slate-800 text-sm leading-tight">${c.question}</h6>
+                        </div>
+                        <div class="p-3 space-y-2 relative">
+                            ${c.options.map(opt => {
+                                const percent = c.totalVotes > 0 ? Math.round((opt.votes / c.totalVotes) * 100) : 0;
+                                return `
+                                    <button onclick="votePoll('${c._id}', '${opt._id}')" class="w-full relative bg-slate-50 hover:bg-ryblue-50 border border-slate-100 p-2 rounded-xl text-left overflow-hidden group transition-colors">
+                                        <div class="absolute left-0 top-0 bottom-0 bg-ryblue-100/50 transition-all duration-500 ease-out" style="width: ${percent}%"></div>
+                                        <div class="relative z-10 flex justify-between items-center text-xs font-medium">
+                                            <span class="text-slate-700 group-hover:text-ryblue-900">${opt.text}</span>
+                                            <span class="text-slate-400 font-bold">${opt.votes} <span class="text-[9px] font-normal">(${percent}%)</span></span>
+                                        </div>
+                                    </button>
+                                `;
+                            }).join('')}
+                            <div class="text-[10px] text-center text-slate-400 mt-2 font-medium">${c.totalVotes} total votes</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        return '';
+    }).join('');
+    
+    if (isAtBottom) {
+        area.scrollTop = area.scrollHeight;
+    }
+};
+
+const startChatPolling = () => {
+    stopChatPolling();
+    chatState.pollInterval = setInterval(fetchChats, 3000);
+};
+
+const stopChatPolling = () => {
+    if (chatState.pollInterval) clearInterval(chatState.pollInterval);
+};
+
+window.submitMessage = async () => {
+    const input = $('chatMessageInput');
+    const text = input.value.trim();
+    if (!text || !chatState.currentRoom) return;
+    input.value = '';
+    await apiCall(`/chats/${chatState.currentRoom}/message`, 'POST', {
+        senderName: chatState.userName,
+        text
+    });
+    fetchChats();
+};
+
+window.toggleCreatePoll = () => {
+    const section = $('createPollSection');
+    if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden');
+        setTimeout(() => {
+            const area = $('chatMessagesArea');
+            area.scrollTop = area.scrollHeight;
+        }, 50);
+    } else {
+        section.classList.add('hidden');
+    }
+};
+
+window.submitPoll = async () => {
+    const question = $('pollQuestion').value.trim();
+    const inputs = document.querySelectorAll('.poll-option-input');
+    const options = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
+    
+    if (!question || options.length < 2) {
+        showToast('Please enter a question and at least 2 options.', 'error');
+        return;
+    }
+    
+    await apiCall(`/chats/${chatState.currentRoom}/poll`, 'POST', {
+        senderName: chatState.userName,
+        question,
+        options
+    });
+    
+    $('pollQuestion').value = '';
+    inputs.forEach(i => i.value = '');
+    toggleCreatePoll();
+    fetchChats();
+};
+
+window.votePoll = async (pollId, optionId) => {
+    await apiCall(`/chats/${chatState.currentRoom}/vote/${pollId}`, 'POST', {
+        optionId
+    });
+    fetchChats();
+};
+</script>
