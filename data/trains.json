@@ -68,5 +68,19 @@
     "totalSeats": 300,
     "availableSeats": 300,
     "price": 2000
+  },
+  {
+    "id": "1773395733712",
+    "trainNo": "235435",
+    "trainName": "Train x",
+    "source": "Chandigarh",
+    "destination": "Mumbai",
+    "dep": "15:25",
+    "arr": "16:25",
+    "startDate": "2026-03-13",
+    "endDate": "2026-03-13",
+    "totalSeats": 50,
+    "availableSeats": 50,
+    "price": 2000
   }
 ]

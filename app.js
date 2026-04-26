@@ -9,7 +9,6 @@ const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
-
 app.use(express.json());
 
 app.use(logger);

@@ -64,5 +64,26 @@
     ],
     "totalVotes": 32,
     "timestamp": "2026-03-12T19:03:06.078Z"
+  },
+  {
+    "id": "1773395832885",
+    "room": "1773286583337_2026-03-12",
+    "type": "poll",
+    "senderName": "Traveler 880",
+    "question": "cab?",
+    "options": [
+      {
+        "id": "0",
+        "text": "yes",
+        "votes": 0
+      },
+      {
+        "id": "1",
+        "text": "no",
+        "votes": 0
+      }
+    ],
+    "totalVotes": 0,
+    "timestamp": "2026-03-13T09:57:12.885Z"
   }
 ]
