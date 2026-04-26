@@ -1,18 +1,35 @@
 const express = require("express");
 const Train = require("../models/Train");
 const Booking = require("../models/Booking");
+const jwt = require("jsonwebtoken"); // New logic integrated
 
 const router = express.Router();
 
-// Home page
+
 router.get("/home", (req, res) => {
-    res.render("home", { currentPage: "home" });
+   
+    const token = req.cookies ? req.cookies.token : null; 
+    let user = null;
+
+    if (token) {
+        try {
+            // 2. Token verify karke user info nikalna
+            user = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            user = null; 
+        }
+    }
+
+    res.render("home", { 
+        currentPage: "home", 
+        user: user 
+    }); 
 });
 
 // Tickets — search + server-rendered results
 router.get("/tickets", async (req, res) => {
     const { from, to, date } = req.query;
-    let trains = null; // null = no search performed yet
+    let trains = null; 
 
     if (from && to && date) {
         const allTrains = await Train.find();
@@ -20,7 +37,6 @@ router.get("/tickets", async (req, res) => {
             const routeMatch = t.source.toLowerCase().includes(from.toLowerCase())
                             && t.destination.toLowerCase().includes(to.toLowerCase());
 
-            // If train has no dates (old data), skip date check
             if (!t.startDate || !t.endDate) return routeMatch;
 
             const travel = new Date(date).setHours(0, 0, 0, 0);
@@ -44,6 +60,11 @@ router.get("/bookings", async (req, res) => {
 router.get("/admin", async (req, res) => {
     const trains = await Train.find();
     res.render("admin", { currentPage: "admin", trains });
+});
+
+// Default redirect
+router.get("/", (req, res) => {
+    res.redirect("/view/home"); 
 });
 
 module.exports = router;
