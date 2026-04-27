@@ -1,20 +1,33 @@
 const express = require("express");
-
-const validateTrain = require("../middleware/validateTrain");
-const validateId = require("../middleware/validateId");
-
-const getTrains = require("../controllers/train/getTrains");
-const getTrainById = require("../controllers/train/getTrainById");
-const createTrain = require("../controllers/train/createTrain");
-const updateTrain = require("../controllers/train/updateTrain");
-const deleteTrain = require("../controllers/train/deleteTrain");
-
 const router = express.Router();
 
-router.get("/", getTrains);
-router.get("/:id", validateId, getTrainById);
-router.post("/", validateTrain, createTrain);
-router.put("/:id", validateTrain, validateId, updateTrain);
-router.delete("/:id", validateId, deleteTrain);
+const Train = require("../models/Train");
+
+// ----------------------
+// GET ALL TRAINS
+// ----------------------
+router.get("/", async (req, res) => {
+    try {
+        const trains = await Train.find();
+        res.json(trains);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching trains" });
+    }
+});
+
+
+// ----------------------
+// ADD TRAIN
+// ----------------------
+router.post("/", async (req, res) => {
+    try {
+        const train = await Train.create(req.body);
+        res.status(201).json(train);
+    } catch (error) {
+    console.error("REAL ERROR:", error);
+    res.status(500).json({ message: error.message });
+}
+});
 
 module.exports = router;

@@ -1,17 +1,17 @@
 const mongoose = require("mongoose");
 
 const trainSchema = new mongoose.Schema({
-    trainNo: { type: String, required: true, unique: true },
-    trainName: { type: String, required: true },
+    trainNo: { type: String, unique: true },
+    trainName: String,
     source: String,
     destination: String,
     dep: String,
     arr: String,
-    startDate: String,
-    endDate: String,
     totalSeats: Number,
     availableSeats: Number,
-    price: Number
-}, { timestamps: true });
+    price: Number,
+    startDate: String,
+    endDate: String
+});
 
 module.exports = mongoose.model("Train", trainSchema);
