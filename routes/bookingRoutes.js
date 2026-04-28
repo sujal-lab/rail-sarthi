@@ -3,6 +3,10 @@ const router = express.Router();
 
 const Booking = require("../models/Booking");
 const Train = require("../models/Train");
+const auth = require("../middleware/auth");
+
+// Secure all booking routes
+router.use(auth);
 
 // ----------------------
 // BOOK TICKET
@@ -10,7 +14,13 @@ const Train = require("../models/Train");
 router.post("/", async (req, res) => {
     try {
         console.log("POST /bookings hit:", req.body);
-        const { userId, trainId } = req.body;
+        const { trainId, passengerName, age, date } = req.body;
+        const userId = req.user.id; // Extract from JWT safely
+
+        // 1. Input Validation
+        if (!passengerName || age <= 0 || !date || !trainId) {
+            return res.status(400).json({ error: "Invalid input" });
+        }
 
         const train = await Train.findById(trainId);
         if (!train) {
@@ -40,6 +50,9 @@ router.post("/", async (req, res) => {
         const booking = await Booking.create({
             userId,
             trainId,
+            passengerName,
+            age,
+            date,
             status,
             queuePosition
         });
@@ -54,19 +67,13 @@ router.post("/", async (req, res) => {
 
 
 // ----------------------
-// GET ALL BOOKINGS
+// GET ALL BOOKINGS (For the authenticated user)
 // ----------------------
 router.get("/", async (req, res) => {
     try {
-        console.log("GET /bookings hit");
-
-        const bookings = await Booking.find();
-
-        console.log("Bookings fetched:", bookings.length);
-
+        const bookings = await Booking.find({ userId: req.user.id });
         return res.json(bookings);
     } catch (error) {
-        console.error("GET ERROR:", error);
         return res.status(500).json({ message: error.message });
     }
 });
@@ -77,16 +84,20 @@ router.get("/", async (req, res) => {
 // ----------------------
 router.delete("/:id", async (req, res) => {
     try {
-        const booking = await Booking.findById(req.params.id);
+        // Atomic find and delete with ownership check
+        const booking = await Booking.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user.id
+        });
 
         if (!booking) {
-            return res.status(404).json({ message: "Booking not found" });
+            return res.status(404).json({ message: "Booking not found or not authorized" });
         }
 
         const train = await Train.findById(booking.trainId);
-
-        // Delete booking
-        await booking.deleteOne();
+        if (!train) {
+            return res.status(404).json({ message: "Train not found for this booking" });
+        }
 
         // If confirmed → free seat
         if (booking.status === "CONFIRMED") {
@@ -98,8 +109,6 @@ router.delete("/:id", async (req, res) => {
                 status: "WAITING"
             }).sort({ queuePosition: 1 });
 
-            console.log("Next waiting booking:", nextBooking);
-
             if (nextBooking) {
                 nextBooking.status = "CONFIRMED";
                 nextBooking.queuePosition = null;
@@ -108,16 +117,27 @@ router.delete("/:id", async (req, res) => {
                 train.availableSeats -= 1;
             }
 
-        // Update queue positions for remaining waiting users
-        const waitingBookings = await Booking.find({
-            trainId: booking.trainId,
-            status: "WAITING"
-        }).sort({ queuePosition: 1 });
+            // Update queue positions for remaining waiting users
+            const waitingBookings = await Booking.find({
+                trainId: booking.trainId,
+                status: "WAITING"
+            }).sort({ queuePosition: 1 });
 
-        for (let i = 0; i < waitingBookings.length; i++) {
-            waitingBookings[i].queuePosition = i + 1;
-            await waitingBookings[i].save();
-        }
+            for (let i = 0; i < waitingBookings.length; i++) {
+                waitingBookings[i].queuePosition = i + 1;
+                await waitingBookings[i].save();
+            }
+        } else if (booking.status === "WAITING") {
+            // Update queue positions for remaining waiting users
+            const waitingBookings = await Booking.find({
+                trainId: booking.trainId,
+                status: "WAITING"
+            }).sort({ queuePosition: 1 });
+
+            for (let i = 0; i < waitingBookings.length; i++) {
+                waitingBookings[i].queuePosition = i + 1;
+                await waitingBookings[i].save();
+            }
         }
 
         await train.save();

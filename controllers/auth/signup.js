@@ -1,5 +1,12 @@
 const User = require("../../models/User");
 
+// Define a list of authorized admin emails
+const ADMIN_EMAILS = [
+    "sujalkandari11@gmail.com",
+    "salaj7534@gmail.com",
+    "simonhambiria@gmail.com"
+];
+
 const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -9,7 +16,10 @@ const signup = async (req, res) => {
             return res.status(400).send("User already exists. <a href='/view/signup'>Try again</a>");
         }
 
-        const user = new User({ name, email, password });
+        // Automatically assign admin role if email matches
+        const role = ADMIN_EMAILS.includes(email.toLowerCase()) ? "admin" : "user";
+
+        const user = new User({ name, email, password, role });
         await user.save();
 
         res.redirect("/view/login");

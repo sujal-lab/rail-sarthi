@@ -85,8 +85,18 @@ router.get("/tickets", async (req, res) => {
 
 // Protected View: Bookings
 router.get("/bookings", requireAuth, async (req, res) => {
-    const bookings = await Booking.find();
-    res.render("bookings", { currentPage: "bookings", bookings });
+    const bookings = await Booking.find({ userId: res.locals.user.id }).populate("trainId");
+    
+    const formattedBookings = bookings.map(b => ({
+        _id: b._id,
+        passengerName: b.passengerName,
+        date: b.date,
+        trainName: b.trainId ? b.trainId.trainName : 'Unknown Train',
+        destination: b.trainId ? b.trainId.destination : 'Unknown Destination',
+        status: b.status
+    }));
+
+    res.render("bookings", { currentPage: "bookings", bookings: formattedBookings });
 });
 
 // Admin View: Train list
