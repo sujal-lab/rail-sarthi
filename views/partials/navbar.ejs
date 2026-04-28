@@ -5,12 +5,22 @@
             <span class="font-heading font-black text-[22px] text-slate-800 leading-none">RAIL सारथी</span>
         </a>
         <div class="hidden md:flex space-x-2 items-center">
-            <a href="/view/home" class="nav-btn <%= currentPage === 'home' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-500 transition px-4 py-2 rounded-full font-heading">Home & Book</a>
+            <a href="/view/home" class="nav-btn <%= currentPage === 'home' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-500 transition px-4 py-2 rounded-full font-heading">Home</a>
             <a href="/view/tickets" class="nav-btn <%= currentPage === 'tickets' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading">
                 <i class="ph-bold ph-ticket mr-1"></i> Train Tickets
             </a>
-            <a href="/view/bookings" class="nav-btn <%= currentPage === 'bookings' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading">My Bookings</a>
-            <a href="/view/admin" class="nav-btn <%= currentPage === 'admin' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading flex items-center gap-1.5"><i class="ph-bold ph-shield-check text-lg"></i> Admin</a>
+            
+            <% if (locals.user) { %>
+                <a href="/view/bookings" class="nav-btn <%= currentPage === 'bookings' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading">My Bookings</a>
+                
+                <% if (locals.user.role === 'admin') { %>
+                    <a href="/view/admin" class="nav-btn <%= currentPage === 'admin' ? 'text-ryblue-600 font-bold' : 'text-slate-500 font-semibold' %> hover:text-ryblue-600 transition px-4 py-2 rounded-full font-heading flex items-center gap-1.5"><i class="ph-bold ph-shield-check text-lg"></i> Admin</a>
+                <% } %>
+                
+                <a href="/auth/logout" class="nav-btn text-slate-500 font-semibold hover:text-ryred-500 transition px-4 py-2 rounded-full font-heading">Logout</a>
+            <% } else { %>
+                <a href="/view/login" class="bg-ryblue-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-ryblue-700 transition-all shadow-md ml-4">Login / Sign Up</a>
+            <% } %>
         </div>
     </div>
 </nav>

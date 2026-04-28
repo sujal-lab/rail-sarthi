@@ -5,14 +5,16 @@ const signup = async (req, res) => {
         const { name, email, password } = req.body;
         const userExists = await User.findOne({ email });
 
-        if (userExists) return res.status(400).json({ message: "User already exists" });
+        if (userExists) {
+            return res.status(400).send("User already exists. <a href='/view/signup'>Try again</a>");
+        }
 
         const user = new User({ name, email, password });
         await user.save();
 
-        res.status(201).json({ message: "User registered successfully" });
+        res.redirect("/view/login");
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).send("Internal Server Error: " + err.message);
     }
 };
 

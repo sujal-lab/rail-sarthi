@@ -1,32 +1,65 @@
 const express = require("express");
 const Train = require("../models/Train");
 const Booking = require("../models/Booking");
-const jwt = require("jsonwebtoken"); // New logic integrated
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
-
-router.get("/home", (req, res) => {
-   
-    const token = req.cookies ? req.cookies.token : null; 
-    let user = null;
-
+// 1. Global Middleware: Extract user from token
+router.use((req, res, next) => {
+    const token = req.cookies ? req.cookies.token : null;
     if (token) {
         try {
-            // 2. Token verify karke user info nikalna
-            user = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            res.locals.user = decoded; // Attach to res.locals for EJS templates
         } catch (err) {
-            user = null; 
+            res.locals.user = null;
         }
+    } else {
+        res.locals.user = null;
     }
-
-    res.render("home", { 
-        currentPage: "home", 
-        user: user 
-    }); 
+    next();
 });
 
-// Tickets — search + server-rendered results
+// Middleware to protect routes (Authentication required)
+const requireAuth = (req, res, next) => {
+    if (!res.locals.user) {
+        return res.redirect("/view/login");
+    }
+    next();
+};
+
+// Middleware to protect admin routes (Admin role required)
+const requireAdmin = (req, res, next) => {
+    if (!res.locals.user || res.locals.user.role !== "admin") {
+        return res.redirect("/view/login");
+    }
+    next();
+};
+
+
+// Auth Views
+router.get("/login", (req, res) => {
+    // If already logged in, redirect based on role
+    if (res.locals.user) {
+        return res.redirect(res.locals.user.role === "admin" ? "/view/admin" : "/view/home");
+    }
+    res.render("login", { currentPage: "login" });
+});
+
+router.get("/signup", (req, res) => {
+    if (res.locals.user) {
+        return res.redirect(res.locals.user.role === "admin" ? "/view/admin" : "/view/home");
+    }
+    res.render("signup", { currentPage: "signup" });
+});
+
+// Public View: Home
+router.get("/home", (req, res) => {
+    res.render("home", { currentPage: "home" }); 
+});
+
+// Public View: Tickets
 router.get("/tickets", async (req, res) => {
     const { from, to, date } = req.query;
     let trains = null; 
@@ -50,14 +83,14 @@ router.get("/tickets", async (req, res) => {
     res.render("tickets", { currentPage: "tickets", trains, from, to, date });
 });
 
-// Bookings — server-rendered table
-router.get("/bookings", async (req, res) => {
+// Protected View: Bookings
+router.get("/bookings", requireAuth, async (req, res) => {
     const bookings = await Booking.find();
     res.render("bookings", { currentPage: "bookings", bookings });
 });
 
-// Admin — server-rendered train list
-router.get("/admin", async (req, res) => {
+// Admin View: Train list
+router.get("/admin", requireAdmin, async (req, res) => {
     const trains = await Train.find();
     res.render("admin", { currentPage: "admin", trains });
 });

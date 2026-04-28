@@ -1,6 +1,6 @@
 const logout = (req, res) => {
-    res.clearCookie("token"); // Cookie delete karein
-    res.redirect("/view/home"); // Wapas landing page par bhejein
+    res.clearCookie("token");
+    res.redirect("/view/login");
 };
 
 module.exports = logout;
