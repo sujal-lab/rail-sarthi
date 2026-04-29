@@ -35,12 +35,16 @@ const signup = async (req, res, next) => {
             maxAge: 3600000,
         });
 
-        // Browser clients → redirect; API clients receive JSON if they set Accept: application/json
-        if (req.accepts("html")) {
-            return res.redirect("/view/login");
+        // Smart Response: JSON for API/Postman, Redirect for Browser Forms
+        if (req.is("json")) {
+            return res.status(201).json({ 
+                token, 
+                user: { id: user._id, name: user.name, email: user.email, role: user.role } 
+            });
         }
 
-        res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+        // Default to redirect for browser form submissions
+        res.redirect("/view/login");
     } catch (err) {
         next(err);
     }

@@ -28,16 +28,20 @@ const login = async (req, res, next) => {
             maxAge: 3600000,
         });
 
-        // 5. Role-based redirection (browser) or JSON response (API clients)
-        if (req.accepts("html")) {
-            if (user.role === "admin") {
-                return res.redirect("/view/admin");
-            } else {
-                return res.redirect("/view/home");
-            }
+        // 5. Smart Response: JSON for API/Postman, Redirect for Browser Forms
+        if (req.is("json")) {
+            return res.json({ 
+                token, 
+                user: { id: user._id, name: user.name, email: user.email, role: user.role } 
+            });
         }
 
-        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+        // Default to redirect for browser form submissions
+        if (user.role === "admin") {
+            return res.redirect("/view/admin");
+        } else {
+            return res.redirect("/view/home");
+        }
 
     } catch (err) {
         next(err);
