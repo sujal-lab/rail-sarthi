@@ -1,6 +1,6 @@
 const Chat = require("../../models/Chat");
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, next) => {
     try {
         const { optionId } = req.body;
 
@@ -22,9 +22,7 @@ module.exports = async (req, res) => {
         await poll.save();
 
         res.status(200).json(poll);
-
     } catch (error) {
-        console.error("Vote Poll Error:", error);
-        res.status(500).json({ message: "Error recording vote" });
+        next(error);
     }
 };

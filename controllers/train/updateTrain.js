@@ -1,6 +1,6 @@
 const Train = require("../../models/Train");
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, next) => {
     try {
         const {
             trainNo, trainName, source, destination,
@@ -41,7 +41,6 @@ module.exports = async (req, res) => {
         res.status(200).json(train);
 
     } catch (error) {
-        console.error("Update Error:", error);
-        res.status(500).json({ message: "Error updating train" });
+        next(error);
     }
 };

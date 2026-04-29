@@ -1,11 +1,10 @@
-const Booking = require("../../models/Booking");
+const { getUserBookings } = require("../../services/bookingService");
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, next) => {
     try {
-        const bookings = await Booking.find();
+        const bookings = await getUserBookings(req.user.id);
         res.status(200).json(bookings);
     } catch (error) {
-        console.error("Read Error:", error);
-        res.status(500).json({ message: "Error fetching bookings" });
+        next(error);
     }
 };

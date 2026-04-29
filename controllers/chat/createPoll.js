@@ -1,6 +1,6 @@
 const Chat = require("../../models/Chat");
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, next) => {
     try {
         const { senderName, question, options } = req.body;
 
@@ -28,9 +28,7 @@ module.exports = async (req, res) => {
         await poll.save();
 
         res.status(201).json(poll);
-
     } catch (error) {
-        console.error("Create Poll Error:", error);
-        res.status(500).json({ message: "Error creating poll" });
+        next(error);
     }
 };

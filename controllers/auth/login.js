@@ -2,7 +2,7 @@ const User = require("../../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         
@@ -23,21 +23,26 @@ const login = async (req, res) => {
 
         // 4. Send token in a secure HttpOnly cookie
         res.cookie("token", token, {
-            httpOnly: true, // Secure: prevents frontend scripts from accessing it
-            secure: process.env.NODE_ENV === "production",  // Use HTTPS in production
-            maxAge: 3600000 // Expires in 1 hour
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 3600000,
         });
 
-        // 5. Role-based redirection
-        if (user.role === "admin") {
-            return res.redirect("/view/admin");
-        } else {
-            return res.redirect("/view/home");
+        // 5. Role-based redirection (browser) or JSON response (API clients)
+        if (req.accepts("html")) {
+            if (user.role === "admin") {
+                return res.redirect("/view/admin");
+            } else {
+                return res.redirect("/view/home");
+            }
         }
 
+        res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+
     } catch (err) {
-        res.status(500).send("Internal Server Error: " + err.message);
+        next(err);
     }
 };
+
 
 module.exports = login;

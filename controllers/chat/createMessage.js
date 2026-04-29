@@ -1,6 +1,6 @@
 const Chat = require("../../models/Chat");
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, next) => {
     try {
         const { senderName, text } = req.body;
 
@@ -14,9 +14,7 @@ module.exports = async (req, res) => {
         await message.save();
 
         res.status(201).json(message);
-
     } catch (error) {
-        console.error("Post Message Error:", error);
-        res.status(500).json({ message: "Error posting message" });
+        next(error);
     }
 };

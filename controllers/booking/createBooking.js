@@ -1,38 +1,14 @@
-const Booking = require("../../models/Booking");
-const Train = require("../../models/Train");
+const { createBooking } = require("../../services/bookingService");
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, next) => {
     try {
         const { trainId, passengerName, age, date } = req.body;
+        const userId = req.user.id;
 
-        // Find train from DB using MongoDB _id
-        console.log("Received trainId:", trainId);
-        const train = await Train.findById(trainId);
-        console.log("Train found:", train);
+        const booking = await createBooking({ userId, trainId, passengerName, age: Number(age), date });
 
-        if (!train) {
-            return res.status(404).json({ message: "Train not found" });
-        }
-
-        // Create new booking
-        const newBooking = new Booking({
-            trainId,
-            trainName: train.trainName,
-            destination: train.destination,
-            passengerName,
-            age: Number(age),
-            date
-        });
-
-        await newBooking.save();
-
-        res.status(201).json({
-            message: "Booking successful",
-            booking: newBooking
-        });
-
+        res.status(201).json(booking);
     } catch (error) {
-        console.error("Create Error:", error);
-        res.status(500).json({ message: "Error processing booking" });
+        next(error);
     }
 };

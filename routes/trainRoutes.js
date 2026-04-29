@@ -1,35 +1,30 @@
 const express = require("express");
 const router = express.Router();
 
-const Train = require("../models/Train");
 const auth = require("../middleware/auth");
 const adminAuth = require("../middleware/adminAuth");
+const validateTrain = require("../middleware/validateTrain");
+const validateId = require("../middleware/validateId");
 
-// ----------------------
-// GET ALL TRAINS
-// ----------------------
-router.get("/", async (req, res) => {
-    try {
-        const trains = await Train.find();
-        res.json(trains);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error fetching trains" });
-    }
-});
+const getTrains = require("../controllers/train/getTrains");
+const getTrainById = require("../controllers/train/getTrainById");
+const createTrain = require("../controllers/train/createTrain");
+const updateTrain = require("../controllers/train/updateTrain");
+const deleteTrain = require("../controllers/train/deleteTrain");
 
+// GET /trains — Public: get all trains
+router.get("/", getTrains);
 
-// ----------------------
-// ADD TRAIN (Admin Only)
-// ----------------------
-router.post("/", auth, adminAuth, async (req, res) => {
-    try {
-        const train = await Train.create(req.body);
-        res.status(201).json(train);
-    } catch (error) {
-        console.error("REAL ERROR:", error);
-        res.status(500).json({ message: error.message });
-    }
-});
+// GET /trains/:id — Public: get a single train by ID
+router.get("/:id", validateId, getTrainById);
+
+// POST /trains — Admin only: add a new train
+router.post("/", auth, adminAuth, validateTrain, createTrain);
+
+// PUT /trains/:id — Admin only: update a train
+router.put("/:id", auth, adminAuth, validateId, validateTrain, updateTrain);
+
+// DELETE /trains/:id — Admin only: remove a train
+router.delete("/:id", auth, adminAuth, validateId, deleteTrain);
 
 module.exports = router;

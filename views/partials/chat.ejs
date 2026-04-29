@@ -100,13 +100,40 @@ const apiCall = async (url, method = 'GET', body = null) => {
     }
 };
 
+let socket = io(); // Initialize socket
+
 let chatState = {
     isOpen: false,
     currentRoom: null,
     currentJourney: null,
-    pollInterval: null,
-    userName: "Traveler " + Math.floor(Math.random() * 1000)
+    userName: "Traveler " + Math.floor(Math.random() * 1000),
+    messages: [] // Local cache of messages in current room
 };
+
+// Socket Listeners
+socket.on("receiveMessage", (message) => {
+    if (chatState.currentRoom === message.room) {
+        chatState.messages.push(message);
+        renderChats(chatState.messages);
+    }
+});
+
+socket.on("receivePoll", (poll) => {
+    if (chatState.currentRoom === poll.room) {
+        chatState.messages.push(poll);
+        renderChats(chatState.messages);
+    }
+});
+
+socket.on("updatePoll", (updatedPoll) => {
+    if (chatState.currentRoom === updatedPoll.room) {
+        const index = chatState.messages.findIndex(m => m._id === updatedPoll._id);
+        if (index !== -1) {
+            chatState.messages[index] = updatedPoll;
+            renderChats(chatState.messages);
+        }
+    }
+});
 
 window.toggleChatWindow = async () => {
     const w = $('chatWindow');
@@ -121,14 +148,13 @@ window.toggleChatWindow = async () => {
     } else {
         w.classList.remove('flex');
         w.classList.add('hidden');
-        stopChatPolling();
     }
 };
 
 window.showChatJourneyList = async () => {
-    stopChatPolling();
     chatState.currentRoom = null;
     chatState.currentJourney = null;
+    chatState.messages = [];
     
     $('chatSelectJourneyView').classList.remove('hidden');
     $('chatSelectJourneyView').classList.add('flex');
@@ -167,9 +193,11 @@ window.showChatJourneyList = async () => {
     `).join('');
 };
 
-window.joinChatRoom = (trainId, date, trainName, dest) => {
+window.joinChatRoom = async (trainId, date, trainName, dest) => {
     chatState.currentRoom = `${trainId}_${date}`;
     chatState.currentJourney = { trainName, dest, date };
+    
+    socket.emit("joinRoom", chatState.currentRoom);
     
     $('chatSelectJourneyView').classList.add('hidden');
     $('chatSelectJourneyView').classList.remove('flex');
@@ -179,14 +207,10 @@ window.joinChatRoom = (trainId, date, trainName, dest) => {
     $('chatHeaderTitle').textContent = trainName || 'Train Chat';
     $('chatHeaderSubtitle').textContent = `To ${dest} on ${date}`;
     
-    fetchChats();
-    startChatPolling();
-};
-
-const fetchChats = async () => {
-    if (!chatState.currentRoom || !chatState.isOpen) return;
-    const chats = await apiCall(`/chats/${chatState.currentRoom}`) || [];
-    renderChats(chats);
+    // Fetch history
+    const history = await apiCall(`/chats/${chatState.currentRoom}`) || [];
+    chatState.messages = history;
+    renderChats(chatState.messages);
 };
 
 const renderChats = (chats) => {
@@ -203,10 +227,10 @@ const renderChats = (chats) => {
         return;
     }
     
-    const isAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 50;
+    const isAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 100;
 
     area.innerHTML = chats.map(c => {
-        const time = new Date(c.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const time = new Date(c.createdAt || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         const isMe = c.senderName === chatState.userName;
         
         if (c.type === 'message') {
@@ -231,7 +255,7 @@ const renderChats = (chats) => {
                             ${c.options.map(opt => {
                                 const percent = c.totalVotes > 0 ? Math.round((opt.votes / c.totalVotes) * 100) : 0;
                                 return `
-                                    <button onclick="votePoll('${c._id}', '${opt._id}')" class="w-full relative bg-slate-50 hover:bg-ryblue-50 border border-slate-100 p-2 rounded-xl text-left overflow-hidden group transition-colors">
+                                    <button onclick="votePoll('${c._id}', '${opt.id}')" class="w-full relative bg-slate-50 hover:bg-ryblue-50 border border-slate-100 p-2 rounded-xl text-left overflow-hidden group transition-colors">
                                         <div class="absolute left-0 top-0 bottom-0 bg-ryblue-100/50 transition-all duration-500 ease-out" style="width: ${percent}%"></div>
                                         <div class="relative z-10 flex justify-between items-center text-xs font-medium">
                                             <span class="text-slate-700 group-hover:text-ryblue-900">${opt.text}</span>
@@ -254,25 +278,18 @@ const renderChats = (chats) => {
     }
 };
 
-const startChatPolling = () => {
-    stopChatPolling();
-    chatState.pollInterval = setInterval(fetchChats, 3000);
-};
-
-const stopChatPolling = () => {
-    if (chatState.pollInterval) clearInterval(chatState.pollInterval);
-};
-
 window.submitMessage = async () => {
     const input = $('chatMessageInput');
     const text = input.value.trim();
     if (!text || !chatState.currentRoom) return;
-    input.value = '';
-    await apiCall(`/chats/${chatState.currentRoom}/message`, 'POST', {
+    
+    socket.emit("sendMessage", {
+        room: chatState.currentRoom,
         senderName: chatState.userName,
         text
     });
-    fetchChats();
+    
+    input.value = '';
 };
 
 window.toggleCreatePoll = () => {
@@ -294,11 +311,12 @@ window.submitPoll = async () => {
     const options = Array.from(inputs).map(i => i.value.trim()).filter(v => v !== '');
     
     if (!question || options.length < 2) {
-        showToast('Please enter a question and at least 2 options.', 'error');
+        alert('Please enter a question and at least 2 options.');
         return;
     }
     
-    await apiCall(`/chats/${chatState.currentRoom}/poll`, 'POST', {
+    socket.emit("createPoll", {
+        room: chatState.currentRoom,
         senderName: chatState.userName,
         question,
         options
@@ -307,13 +325,13 @@ window.submitPoll = async () => {
     $('pollQuestion').value = '';
     inputs.forEach(i => i.value = '');
     toggleCreatePoll();
-    fetchChats();
 };
 
 window.votePoll = async (pollId, optionId) => {
-    await apiCall(`/chats/${chatState.currentRoom}/vote/${pollId}`, 'POST', {
+    socket.emit("votePoll", {
+        room: chatState.currentRoom,
+        pollId,
         optionId
     });
-    fetchChats();
 };
 </script>

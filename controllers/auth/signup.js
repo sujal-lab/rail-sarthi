@@ -1,30 +1,48 @@
 const User = require("../../models/User");
+const jwt = require("jsonwebtoken");
 
-// Define a list of authorized admin emails
-const ADMIN_EMAILS = [
-    "sujalkandari11@gmail.com",
-    "salaj7534@gmail.com",
-    "simonhambiria@gmail.com"
-];
+// Admin emails should ideally come from env, but kept here for backward compatibility.
+// To move to env: ADMIN_EMAILS=a@x.com,b@x.com  →  process.env.ADMIN_EMAILS.split(",")
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "sujalkandari11@gmail.com,salaj7534@gmail.com,simonhambiria@gmail.com")
+    .split(",")
+    .map(e => e.trim().toLowerCase());
 
-const signup = async (req, res) => {
+const signup = async (req, res, next) => {
     try {
         const { name, email, password } = req.body;
-        const userExists = await User.findOne({ email });
 
+        const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).send("User already exists. <a href='/view/signup'>Try again</a>");
         }
 
-        // Automatically assign admin role if email matches
         const role = ADMIN_EMAILS.includes(email.toLowerCase()) ? "admin" : "user";
 
         const user = new User({ name, email, password, role });
         await user.save();
 
-        res.redirect("/view/login");
+        // Issue JWT so API clients (e.g. Postman) can authenticate immediately after register
+        const token = jwt.sign(
+            { id: user._id, email: user.email, name: user.name, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        // Set cookie for browser-based flow
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 3600000,
+        });
+
+        // Browser clients → redirect; API clients receive JSON if they set Accept: application/json
+        if (req.accepts("html")) {
+            return res.redirect("/view/login");
+        }
+
+        res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
     } catch (err) {
-        res.status(500).send("Internal Server Error: " + err.message);
+        next(err);
     }
 };
 
