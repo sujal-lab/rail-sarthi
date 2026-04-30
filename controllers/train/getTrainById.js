@@ -1,13 +1,9 @@
-const Train = require("../../models/Train");
+const trainService = require("../../services/trainService");
 
+// Get a single train by ID (Thin Controller)
 module.exports = async (req, res, next) => {
     try {
-        const train = await Train.findById(req.params.id);
-
-        if (!train) {
-            return res.status(404).json({ message: "Train not found" });
-        }
-
+        const train = await trainService.getTrainById(req.params.id);
         res.status(200).json(train);
     } catch (error) {
         next(error);

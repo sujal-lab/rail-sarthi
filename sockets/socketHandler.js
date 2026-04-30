@@ -1,4 +1,4 @@
-const Chat = require("../models/Chat");
+const chatService = require("../services/chatService");
 
 module.exports = (io) => {
     io.on("connection", (socket) => {
@@ -12,18 +12,10 @@ module.exports = (io) => {
 
         // Handle Chat Message
         socket.on("sendMessage", async (data) => {
-            const { room, senderName, text } = data;
             try {
-                const newMessage = new Chat({
-                    room,
-                    type: "message",
-                    senderName: senderName || "Anonymous Traveler",
-                    text
-                });
-                await newMessage.save();
-
+                const newMessage = await chatService.saveMessage(data);
                 // Broadcast message to everyone in the room
-                io.to(room).emit("receiveMessage", newMessage);
+                io.to(data.room).emit("receiveMessage", newMessage);
             } catch (err) {
                 console.error("Socket Message Error:", err);
             }
@@ -31,26 +23,10 @@ module.exports = (io) => {
 
         // Handle New Poll
         socket.on("createPoll", async (data) => {
-            const { room, senderName, question, options } = data;
             try {
-                const formattedOptions = options.map((opt, index) => ({
-                    id: index.toString(),
-                    text: opt,
-                    votes: 0
-                }));
-
-                const newPoll = new Chat({
-                    room,
-                    type: "poll",
-                    senderName: senderName || "Anonymous Traveler",
-                    question,
-                    options: formattedOptions,
-                    totalVotes: 0
-                });
-                await newPoll.save();
-
+                const newPoll = await chatService.createPoll(data);
                 // Broadcast poll to everyone in the room
-                io.to(room).emit("receivePoll", newPoll);
+                io.to(data.room).emit("receivePoll", newPoll);
             } catch (err) {
                 console.error("Socket Poll Error:", err);
             }
@@ -58,19 +34,11 @@ module.exports = (io) => {
 
         // Handle Vote
         socket.on("votePoll", async (data) => {
-            const { room, pollId, optionId } = data;
             try {
-                const poll = await Chat.findById(pollId);
-                if (poll && poll.type === "poll") {
-                    const option = poll.options.find(o => o.id === optionId);
-                    if (option) {
-                        option.votes += 1;
-                        poll.totalVotes += 1;
-                        await poll.save();
-
-                        // Broadcast updated poll to everyone in the room
-                        io.to(room).emit("updatePoll", poll);
-                    }
+                const updatedPoll = await chatService.votePoll(data.pollId, data.optionId);
+                if (updatedPoll) {
+                    // Broadcast updated poll to everyone in the room
+                    io.to(data.room).emit("updatePoll", updatedPoll);
                 }
             } catch (err) {
                 console.error("Socket Vote Error:", err);

@@ -1,25 +1,12 @@
-const User = require("../../models/User");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const authService = require("../../services/authService");
 
+// Login controller (Thin)
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         
-// Find user
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).send("Invalid credentials. <a href='/view/login'>Try again</a>");
-
-        // Check password
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).send("Invalid credentials. <a href='/view/login'>Try again</a>");
-
-        // Create JWT token
-        const token = jwt.sign(
-            { id: user._id, email: user.email, name: user.name, role: user.role }, 
-            process.env.JWT_SECRET, 
-            { expiresIn: "1h" }
-        );
+        // Call Service Logic
+        const { token, user } = await authService.login({ email, password });
 
         // Save token in cookie
         res.cookie("token", token, {
@@ -30,13 +17,9 @@ const login = async (req, res, next) => {
 
         // Send JSON for API, Redirect for Browser
         if (req.is("json")) {
-            return res.json({ 
-                token, 
-                user: { id: user._id, name: user.name, email: user.email, role: user.role } 
-            });
+            return res.json({ token, user });
         }
 
-        // Default to redirect for browser form submissions
         if (user.role === "admin") {
             return res.redirect("/view/admin");
         } else {
@@ -44,9 +27,12 @@ const login = async (req, res, next) => {
         }
 
     } catch (err) {
+        // If service throws error, this caught it
+        if (err.statusCode === 400 && !req.is("json")) {
+            return res.status(400).send(`${err.message}. <a href='/view/login'>Try again</a>`);
+        }
         next(err);
     }
 };
-
 
 module.exports = login;

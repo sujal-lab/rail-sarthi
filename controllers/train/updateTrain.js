@@ -1,45 +1,10 @@
-const Train = require("../../models/Train");
+const trainService = require("../../services/trainService");
 
+// Update a train (Thin Controller)
 module.exports = async (req, res, next) => {
     try {
-        const {
-            trainNo, trainName, source, destination,
-            dep, arr, totalSeats, price,
-            startDate, endDate
-        } = req.body;
-
-        const train = await Train.findById(req.params.id);
-
-        if (!train) {
-            return res.status(404).json({ message: "Train not found" });
-        }
-
-        const duplicate = await Train.findOne({
-            trainNo,
-            _id: { $ne: req.params.id }
-        });
-
-        if (duplicate) {
-            return res.status(400).json({
-                message: "Train number already exists for another train"
-            });
-        }
-
-        train.trainNo = trainNo;
-        train.trainName = trainName;
-        train.source = source;
-        train.destination = destination;
-        train.dep = dep;
-        train.arr = arr;
-        train.startDate = startDate;
-        train.endDate = endDate;
-        train.totalSeats = totalSeats;
-        train.price = price;
-
-        await train.save();
-
+        const train = await trainService.updateTrain(req.params.id, req.body);
         res.status(200).json(train);
-
     } catch (error) {
         next(error);
     }
