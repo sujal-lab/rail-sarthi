@@ -1,5 +1,6 @@
 const Train = require("../../models/Train");
 
+// Create a new train (Admin only)
 module.exports = async (req, res, next) => {
     try {
         const {

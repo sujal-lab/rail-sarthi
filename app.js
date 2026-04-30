@@ -17,13 +17,13 @@ const app = express();
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// 2. MIDDLEWARE (Order is very important!)
+// Middlewares
 app.use(cookieParser()); // Cookie parser pehle
-app.use(express.json()); // JSON parser uske baad
+app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true }));
 
 app.use(logger);
-app.use(express.static("public")); // Static files like CSS
+app.use(express.static("public")); // Static files
 
 // 3. ROUTES
 app.use("/auth", authRoutes); // Auth routes (Signup/Login)

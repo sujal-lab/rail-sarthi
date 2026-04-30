@@ -1,10 +1,7 @@
 const Booking = require("../models/Booking");
 const Train = require("../models/Train");
 
-// ─────────────────────────────────────────────
-// CREATE BOOKING
-// Handles seat availability, CONFIRMED/WAITING status, and queue position.
-// ─────────────────────────────────────────────
+// Handles seat booking logic (Confirm/Waiting)
 const createBooking = async ({ userId, trainId, passengerName, age, date }) => {
     const train = await Train.findById(trainId);
     if (!train) {
@@ -38,12 +35,7 @@ const createBooking = async ({ userId, trainId, passengerName, age, date }) => {
     return booking;
 };
 
-// ─────────────────────────────────────────────
-// CANCEL BOOKING
-// Frees a seat if the booking was CONFIRMED, promotes the first WAITING user,
-// then rebalances queue positions for all remaining WAITING bookings.
-// Enforces ownership: only the booking owner can cancel.
-// ─────────────────────────────────────────────
+// Cancels booking and moves next person from waiting list
 const cancelBooking = async ({ bookingId, userId }) => {
     // Atomic delete with ownership check
     const booking = await Booking.findOneAndDelete({
@@ -98,10 +90,7 @@ const cancelBooking = async ({ bookingId, userId }) => {
     return booking;
 };
 
-// ─────────────────────────────────────────────
-// GET USER BOOKINGS
-// Returns only bookings belonging to the authenticated user.
-// ─────────────────────────────────────────────
+// Get all bookings for a specific user
 const getUserBookings = async (userId) => {
     return Booking.find({ userId });
 };

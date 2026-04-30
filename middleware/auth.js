@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const auth = (req, res, next) => {
-    // NEW: This line looks for the token in your cookies OR the Authorization header
+    // Get token from cookies or headers
     const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
@@ -9,7 +9,7 @@ const auth = (req, res, next) => {
     }
 
     try {
-        // Verify the token using the secret in your .env file
+        // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
