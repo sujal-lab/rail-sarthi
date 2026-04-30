@@ -6,11 +6,7 @@ const adminAuth = require("../middleware/adminAuth");
 const validateTrain = require("../middleware/validateTrain");
 const validateId = require("../middleware/validateId");
 
-const getTrains = require("../controllers/train/getTrains");
-const getTrainById = require("../controllers/train/getTrainById");
-const createTrain = require("../controllers/train/createTrain");
-const updateTrain = require("../controllers/train/updateTrain");
-const deleteTrain = require("../controllers/train/deleteTrain");
+const { getTrains, getTrainById, createTrain, updateTrain, deleteTrain } = require("../controllers/trainController");
 
 // GET /trains — Public: get all trains
 router.get("/", getTrains);

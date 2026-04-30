@@ -1,15 +1,15 @@
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser"); // Ek baar import
-const logger = require("./middleware/logger");
-const errorHandler = require("./middleware/errorHandler");
+const logger = require("./src/middleware/logger");
+const errorHandler = require("./src/middleware/errorHandler");
 
 // Route imports
-const trainRoutes = require("./routes/trainRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
-const chatRoutes = require("./routes/chatRoutes");
-const viewRoutes = require("./routes/viewRoutes");
-const authRoutes = require("./routes/authRoutes");
+const trainRoutes = require("./src/routes/trainRoutes");
+const bookingRoutes = require("./src/routes/bookingRoutes");
+const chatRoutes = require("./src/routes/chatRoutes");
+const viewRoutes = require("./src/routes/viewRoutes");
+const authRoutes = require("./src/routes/authRoutes");
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(express.json()); // Parse JSON
 app.use(express.urlencoded({ extended: true }));
 
 app.use(logger);
-app.use(express.static("public")); // Static files
+app.use(express.static(path.join(__dirname, "public"))); // Static files
 
 // 3. ROUTES
 app.use("/auth", authRoutes); // Auth routes (Signup/Login)

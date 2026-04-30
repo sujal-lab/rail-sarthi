@@ -5,9 +5,7 @@ const auth = require("../middleware/auth");
 const validateBooking = require("../middleware/validateBooking");
 const validateId = require("../middleware/validateId");
 
-const createBooking = require("../controllers/booking/createBooking");
-const getBookings = require("../controllers/booking/getBookings");
-const deleteBooking = require("../controllers/booking/deleteBooking");
+const { createBooking, getBookings, deleteBooking } = require("../controllers/bookingController");
 
 // Secure ALL booking routes
 router.use(auth);

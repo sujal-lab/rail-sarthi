@@ -3,10 +3,7 @@ const router = express.Router();
 
 const auth = require("../middleware/auth");
 
-const getChatsByRoom = require("../controllers/chat/getChatsByRoom");
-const createMessage = require("../controllers/chat/createMessage");
-const createPoll = require("../controllers/chat/createPoll");
-const votePoll = require("../controllers/chat/votePoll");
+const { getChatsByRoom, createMessage, createPoll, votePoll } = require("../controllers/chatController");
 
 // Secure ALL chat routes
 router.use(auth);
