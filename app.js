@@ -10,6 +10,7 @@ const bookingRoutes = require("./src/routes/bookingRoutes");
 const chatRoutes = require("./src/routes/chatRoutes");
 const viewRoutes = require("./src/routes/viewRoutes");
 const authRoutes = require("./src/routes/authRoutes");
+const uploadRoutes = require("./src/routes/uploadRoutes");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/view", viewRoutes); // View routes (EJS Pages)
 app.use("/trains", trainRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/chats", chatRoutes);
+app.use("/api/upload", uploadRoutes); // Profile image upload
 
 // Root redirect
 app.get("/", (req, res) => {
