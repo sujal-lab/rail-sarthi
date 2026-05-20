@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/sujal-lab/rail-sarthi#readme",
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -28,6 +29,8 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.5.0",
+    "pg": "^8.21.0",
+    "prisma": "^6.19.3",
     "socket.io": "^4.8.3"
   }
 }

@@ -1,9 +1,11 @@
-const Booking = require("../models/Booking");
+const prisma = require("../config/prisma");
 const Train = require("../models/Train");
 
-// Handles seat booking logic (Confirm/Waiting)
+// Create Booking
 const createBooking = async ({ userId, trainId, passengerName, age, date }) => {
+
     const train = await Train.findById(trainId);
+
     if (!train) {
         const err = new Error("Train not found");
         err.statusCode = 404;
@@ -18,29 +20,40 @@ const createBooking = async ({ userId, trainId, passengerName, age, date }) => {
         await train.save();
     } else {
         status = "WAITING";
-        const waitingCount = await Booking.countDocuments({ trainId, status: "WAITING" });
+
+        const waitingCount = await prisma.booking.count({
+            where: {
+                trainId,
+                status: "WAITING"
+            }
+        });
+
         queuePosition = waitingCount + 1;
     }
 
-    const booking = await Booking.create({
-        userId,
-        trainId,
-        passengerName,
-        age,
-        date,
-        status,
-        queuePosition,
+    const booking = await prisma.booking.create({
+        data: {
+            userId: Number(userId),
+            trainId,
+            passengerName,
+            age,
+            date,
+            status,
+            queuePosition
+        }
     });
 
     return booking;
 };
 
-// Cancels booking and moves next person from waiting list
+// Cancel Booking
 const cancelBooking = async ({ bookingId, userId }) => {
-    // Atomic delete with ownership check
-    const booking = await Booking.findOneAndDelete({
-        _id: bookingId,
-        userId,
+
+    const booking = await prisma.booking.findFirst({
+        where: {
+            id: Number(bookingId),
+            userId: Number(userId)
+        }
     });
 
     if (!booking) {
@@ -49,7 +62,14 @@ const cancelBooking = async ({ bookingId, userId }) => {
         throw err;
     }
 
+    await prisma.booking.delete({
+        where: {
+            id: Number(bookingId)
+        }
+    });
+
     const train = await Train.findById(booking.trainId);
+
     if (!train) {
         const err = new Error("Train associated with this booking no longer exists");
         err.statusCode = 404;
@@ -57,32 +77,55 @@ const cancelBooking = async ({ bookingId, userId }) => {
     }
 
     if (booking.status === "CONFIRMED") {
-        // Free the seat
+
         train.availableSeats += 1;
 
-        // Promote the first waiting booking
-        const nextBooking = await Booking.findOne({
-            trainId: booking.trainId,
-            status: "WAITING",
-        }).sort({ queuePosition: 1 });
+        const nextBooking = await prisma.booking.findFirst({
+            where: {
+                trainId: booking.trainId,
+                status: "WAITING"
+            },
+            orderBy: {
+                queuePosition: "asc"
+            }
+        });
 
         if (nextBooking) {
-            nextBooking.status = "CONFIRMED";
-            nextBooking.queuePosition = null;
-            await nextBooking.save();
+
+            await prisma.booking.update({
+                where: {
+                    id: nextBooking.id
+                },
+                data: {
+                    status: "CONFIRMED",
+                    queuePosition: null
+                }
+            });
+
             train.availableSeats -= 1;
         }
     }
 
-    // Rebalance queue positions for all remaining WAITING bookings
-    const waitingBookings = await Booking.find({
-        trainId: booking.trainId,
-        status: "WAITING",
-    }).sort({ queuePosition: 1 });
+    const waitingBookings = await prisma.booking.findMany({
+        where: {
+            trainId: booking.trainId,
+            status: "WAITING"
+        },
+        orderBy: {
+            queuePosition: "asc"
+        }
+    });
 
     for (let i = 0; i < waitingBookings.length; i++) {
-        waitingBookings[i].queuePosition = i + 1;
-        await waitingBookings[i].save();
+
+        await prisma.booking.update({
+            where: {
+                id: waitingBookings[i].id
+            },
+            data: {
+                queuePosition: i + 1
+            }
+        });
     }
 
     await train.save();
@@ -90,9 +133,18 @@ const cancelBooking = async ({ bookingId, userId }) => {
     return booking;
 };
 
-// Get all bookings for a specific user
+// Get User Bookings
 const getUserBookings = async (userId) => {
-    return Booking.find({ userId });
+
+    return await prisma.booking.findMany({
+        where: {
+            userId: Number(userId)
+        }
+    });
 };
 
-module.exports = { createBooking, cancelBooking, getUserBookings };
+module.exports = {
+    createBooking,
+    cancelBooking,
+    getUserBookings
+};
